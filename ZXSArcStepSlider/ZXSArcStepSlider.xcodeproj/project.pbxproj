@@ -12,6 +12,7 @@
 		565513F321E3575F005A5043 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 565513F221E3575F005A5043 /* Assets.xcassets */; };
 		565513F621E3575F005A5043 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 565513F421E3575F005A5043 /* LaunchScreen.storyboard */; };
 		565513F921E35760005A5043 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 565513F821E35760005A5043 /* main.m */; };
+		5655140121E35A32005A5043 /* ZXSArcStepSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5655140021E35A32005A5043 /* ZXSArcStepSlider.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,8 @@
 		565513F521E3575F005A5043 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		565513F721E3575F005A5043 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		565513F821E35760005A5043 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		565513FF21E35A32005A5043 /* ZXSArcStepSlider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZXSArcStepSlider.h; sourceTree = "<group>"; };
+		5655140021E35A32005A5043 /* ZXSArcStepSlider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZXSArcStepSlider.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +63,8 @@
 				565513EA21E3575F005A5043 /* AppDelegate.m */,
 				565513EC21E3575F005A5043 /* ViewController.h */,
 				565513ED21E3575F005A5043 /* ViewController.m */,
+				565513FF21E35A32005A5043 /* ZXSArcStepSlider.h */,
+				5655140021E35A32005A5043 /* ZXSArcStepSlider.m */,
 				565513F221E3575F005A5043 /* Assets.xcassets */,
 				565513F421E3575F005A5043 /* LaunchScreen.storyboard */,
 				565513F721E3575F005A5043 /* Info.plist */,
@@ -140,6 +145,7 @@
 				565513EE21E3575F005A5043 /* ViewController.m in Sources */,
 				565513F921E35760005A5043 /* main.m in Sources */,
 				565513EB21E3575F005A5043 /* AppDelegate.m in Sources */,
+				5655140121E35A32005A5043 /* ZXSArcStepSlider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
