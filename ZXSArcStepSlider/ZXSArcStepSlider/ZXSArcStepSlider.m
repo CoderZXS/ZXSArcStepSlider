@@ -57,7 +57,7 @@ typedef struct {
 }
 
 - (void)drawRect:(CGRect)rect {
-    [self drawSector];
+    [self draw];
 }
 
 //开始
@@ -166,8 +166,18 @@ typedef struct {
     [self setNeedsDisplay];
 }
 
-- (void)drawSector {
+- (void)draw {
+    /*
+     1.获取图形上下文
+     2.绘图
+       2.1画图
+       2.2设置参数(颜色、线宽、线段样式等)
+     3.渲染
+     */
+    // 1.获取上下文
     CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // 2.绘图
     CGContextSetLineWidth(context, self.circleLineWidth);
     
     UIColor *startCircleColor = self.color;
@@ -183,6 +193,8 @@ typedef struct {
     
     CGContextAddArc(context, x, y, r, self.startAngle, self.circleOffsetAngle, 0);
     CGContextSetLineCap(context, kCGLineCapRound);
+    
+    // 3.渲染
     CGContextStrokePath(context);
     
     //clearing place for start marker
