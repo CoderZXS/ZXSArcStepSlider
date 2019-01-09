@@ -10,8 +10,8 @@
 
 // 极坐标
 typedef struct {
-    double radius;
-    double angle;
+    CGFloat radius;
+    CGFloat angle;
 } ZXSPolarCoordinate;
 
 @interface ZXSArcStepSlider ()
@@ -175,10 +175,10 @@ typedef struct {
      3.渲染
      */
     // 1.获取上下文
-    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
     
     // 2.绘图
-    CGContextSetLineWidth(context, self.circleLineWidth);
+    CGContextSetLineWidth(ctx, self.circleLineWidth);
     
     UIColor *startCircleColor = self.color;
     UIColor *markBackcolor = [UIColor whiteColor];
@@ -191,46 +191,46 @@ typedef struct {
     //start circle line
     [startCircleColor setStroke];
     
-    CGContextAddArc(context, x, y, r, self.startAngle, self.circleOffsetAngle, 0);
-    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextAddArc(ctx, x, y, r, self.startAngle, self.circleOffsetAngle, 0);
+    CGContextSetLineCap(ctx, kCGLineCapRound);
     
     // 3.渲染
-    CGContextStrokePath(context);
+    CGContextStrokePath(ctx);
     
     //clearing place for start marker
-    CGContextSaveGState(context);
-    CGContextAddArc(context, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - (self.lineWidth/2.0), 0.0, 6.28, 0);
-    CGContextClip(context);
-    CGContextClearRect(context, self.bounds);
-    CGContextRestoreGState(context);
+    CGContextSaveGState(ctx);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
+    CGContextClip(ctx);
+    CGContextClearRect(ctx, self.bounds);
+    CGContextRestoreGState(ctx);
     
     //clearing place for end marker
-    CGContextSaveGState(context);
-    CGContextAddArc(context, self.endMarkerCenter.x, self.endMarkerCenter.y, self.endMarkerRadius - (self.lineWidth/2.0), 0.0, 6.28, 0);
-    CGContextClip(context);
-    CGContextClearRect(context, self.bounds);
-    CGContextRestoreGState(context);
+    CGContextSaveGState(ctx);
+    CGContextAddArc(ctx, self.endMarkerCenter.x, self.endMarkerCenter.y, self.endMarkerRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
+    CGContextClip(ctx);
+    CGContextClearRect(ctx, self.bounds);
+    CGContextRestoreGState(ctx);
     
     CGFloat len = r / sqrt(2);
     
     //外圆弧
-    CGContextSetLineWidth(context, self.lineWidth);
-    CGContextAddArc(context, x, y, r + 10, self.startAngle, M_PI_4, 0);
-    CGContextStrokePath(context);
+    CGContextSetLineWidth(ctx, self.lineWidth);
+    CGContextAddArc(ctx, x, y, r + 10, self.startAngle, M_PI_4, 0);
+    CGContextStrokePath(ctx);
     
     //左端点
-    CGContextSaveGState(context);
-    CGContextAddArc(context, x - len, y + len, 10, -M_PI_4, M_PI_4*3, 0);
-    CGContextStrokePath(context);
+    CGContextSaveGState(ctx);
+    CGContextAddArc(ctx, x - len, y + len, 10, -M_PI_4, M_PI_4*3, 0);
+    CGContextStrokePath(ctx);
     
     //内圆弧
-    CGContextSaveGState(context);
-    CGContextAddArc(context, x, y, r - 10, self.startAngle, M_PI_4, 0);
-    CGContextStrokePath(context);
+    CGContextSaveGState(ctx);
+    CGContextAddArc(ctx, x, y, r - 10, self.startAngle, M_PI_4, 0);
+    CGContextStrokePath(ctx);
     //右端点
-    CGContextSaveGState(context);
-    CGContextAddArc(context, x + len, y + len, 10, M_PI_4, M_PI_4*5, 0);
-    CGContextStrokePath(context);
+    CGContextSaveGState(ctx);
+    CGContextAddArc(ctx, x + len, y + len, 10, M_PI_4, M_PI_4 * 5, 0);
+    CGContextStrokePath(ctx);
     
     //如果需要圆弧上面有字
     if (self.drowNumber) {
@@ -238,15 +238,15 @@ typedef struct {
     }
     
     //标记
-    CGContextSetLineWidth(context, self.lineWidth);
+    CGContextSetLineWidth(ctx, self.lineWidth);
     [[startCircleColor colorWithAlphaComponent:self.startMarkerAlpha] setStroke];
-    CGContextAddArc(context, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius, 0.0, 6.28, 0);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius, 0.0, 6.28, 0);
     //标记背景色
-    CGContextStrokePath(context);
+    CGContextStrokePath(ctx);
     [markBackcolor setFill];
     [[startCircleColor colorWithAlphaComponent:self.startMarkerAlpha] setStroke];
-    CGContextAddArc(context, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - 1, 0.0, 6.28, 0);
-    CGContextFillPath(context);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - 1, 0.0, 6.28, 0);
+    CGContextFillPath(ctx);
     //标记上面的字
     NSString *startMarkerStr = [NSString stringWithFormat:@"%.0f", self.startValue + 16];
     [self drawString:startMarkerStr
