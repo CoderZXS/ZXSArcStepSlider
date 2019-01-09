@@ -8,25 +8,25 @@
 
 #import "ZXSArcStepSlider.h"
 
-// 整个slider需要的信息参数结构体
+// 极坐标
 typedef struct {
     double radius;
     double angle;
-} YHPolarCoordinate;
+} ZXSPolarCoordinate;
 
 @interface ZXSArcStepSlider ()
 
 @property (nonatomic, assign) CGPoint circleCenter;
 @property (nonatomic, assign) CGFloat radius;
 
-@property (nonatomic, assign) double fullLine;
-@property (nonatomic, assign) double circleOffset;
-@property (nonatomic, assign) double circleLine;
-@property (nonatomic, assign) double circleEmpty;
+@property (nonatomic, assign) CGFloat fullLine;
+@property (nonatomic, assign) CGFloat circleOffset;
+@property (nonatomic, assign) CGFloat circleLine;
+@property (nonatomic, assign) CGFloat circleEmpty;
 
-@property (nonatomic, assign) double circleOffsetAngle;
-@property (nonatomic, assign) double circleLineAngle;
-@property (nonatomic, assign) double circleEmptyAngle;
+@property (nonatomic, assign) CGFloat circleOffsetAngle;
+@property (nonatomic, assign) CGFloat circleLineAngle;
+@property (nonatomic, assign) CGFloat circleEmptyAngle;
 
 @property (nonatomic, assign) CGPoint startMarkerCenter;
 @property (nonatomic, assign) CGPoint endMarkerCenter;
@@ -82,7 +82,7 @@ typedef struct {
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
     CGPoint ceter = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
-    YHPolarCoordinate polar = decartToPolar(ceter, touchPoint);
+    ZXSPolarCoordinate polar = decartToPolar(ceter, touchPoint);
     
     double correctedAngle;
     if(polar.angle < self.startAngle) correctedAngle = polar.angle + (2 * M_PI - self.startAngle);
@@ -148,18 +148,17 @@ typedef struct {
 #pragma mark - 自定义
 
 - (void)setupInit {
-    self.minValue = 0.0;
-    self.maxValue = 100.0;
-    self.startValue = 0.0;
-    self.endValue = 50.0;
-    self.color = [UIColor greenColor];
-    
-    self.sectorsRadius = 45.0;
     self.backgroundColor = [UIColor clearColor];
+    self.sectorsRadius = 45.0;
     self.startAngle = toRadians(135);
     self.markRadius = 20;
     self.circleLineWidth = 20;
     self.lineWidth = 2;
+    self.color = [UIColor greenColor];
+    self.minValue = 0.0;
+    self.maxValue = 100.0;
+    self.startValue = 0.0;
+    self.endValue = 50.0;
 }
 
 - (void)setSectorsRadius:(double)sectorsRadius {
@@ -282,7 +281,7 @@ typedef struct {
 
 //判断点击的位置是否是mark内
 - (BOOL)touchInCircleWithPoint:(CGPoint)touchPoint circleCenter:(CGPoint)circleCenter {
-    YHPolarCoordinate polar = decartToPolar(circleCenter, touchPoint);
+    ZXSPolarCoordinate polar = decartToPolar(circleCenter, touchPoint);
     return polar.radius < self.markRadius;
 }
 
@@ -317,11 +316,11 @@ CGPoint polarToDecart(CGPoint startPoint, CGFloat radius, CGFloat angle) {
     return CGPointMake(x, y);
 }
 
-YHPolarCoordinate decartToPolar(CGPoint center, CGPoint point) {
+ZXSPolarCoordinate decartToPolar(CGPoint center, CGPoint point) {
     double x = point.x - center.x;
     double y = point.y - center.y;
     
-    YHPolarCoordinate polar;
+    ZXSPolarCoordinate polar;
     polar.radius = sqrt(pow(x, 2.0) + pow(y, 2.0));
     polar.angle = acos(x / (sqrt(pow(x, 2.0) + pow(y, 2.0))));
     if(y < 0) polar.angle = 2 * M_PI - polar.angle;

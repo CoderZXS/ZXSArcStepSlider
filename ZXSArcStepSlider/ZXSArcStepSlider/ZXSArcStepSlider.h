@@ -12,20 +12,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZXSArcStepSlider : UIControl
 
-@property (strong, nonatomic) UIColor *color;
-
-@property (nonatomic, readwrite) double minValue;// 最小
-@property (nonatomic, readwrite) double maxValue;// 最大
-
-@property (nonatomic, readwrite) double startValue;// 开始值
-@property (nonatomic, readwrite) double endValue;// 结束值
-
-@property (nonatomic, readwrite) double sectorsRadius;// 扇形半径
-@property (nonatomic, readwrite) double startAngle;// 开始的角度
-@property (nonatomic, assign) double markRadius;// 标记半径
+@property (nonatomic, assign) CGFloat sectorsRadius;// 扇形半径
+@property (nonatomic, assign) CGFloat startAngle;// 开始的角度
+@property (nonatomic, assign) CGFloat markRadius;// 标记半径
+@property (nonatomic, assign) CGFloat circleLineWidth;// 圆弧宽度
+@property (nonatomic, assign) CGFloat lineWidth;// 线宽
+@property (nonatomic, strong) UIColor *color;// 填充颜色
+@property (nonatomic, assign) CGFloat minValue;// 最小
+@property (nonatomic, assign) CGFloat maxValue;// 最大
+@property (nonatomic, assign) CGFloat startValue;// 开始值
+@property (nonatomic, assign) CGFloat endValue;// 结束值
 @property (nonatomic, copy) void (^drowNumber)(CGFloat radius, CGFloat x, CGFloat y);// 如果需要在圆弧上面写上字，需要给该block赋值，其中radius为圆弧直径，x,y中心点
-@property (nonatomic, assign) double circleLineWidth;// 圆弧宽度
-@property (nonatomic, assign) double lineWidth;// 线宽
 
 @end
 

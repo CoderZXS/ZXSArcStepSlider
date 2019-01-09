@@ -32,13 +32,12 @@
     ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     [self.view addSubview:slder];
     slder.startAngle = M_PI_4 * 3;
-    slder.color = [UIColor colorWithRed:29.0 / 255.0 green:207.0 / 255.0 blue:0.0 alpha:1.0];
+    slder.color = [UIColor greenColor];
     slder.maxValue = 19;
     slder.startValue = 0;
     slder.endValue = 14;
     slder.sectorsRadius = 135;
     [slder addTarget:self action:@selector(valueChange:) forControlEvents:UIControlEventValueChanged];
-    
     slder.drowNumber = ^(CGFloat radius, CGFloat x, CGFloat y) {
         NSArray *angleArray = @[@36, @18, @0];
         NSInteger num = 16;
@@ -106,6 +105,7 @@
         }
     };
 }
+
 - (void)valueChange:(ZXSArcStepSlider *)slder {
     self.label.text = [NSString stringWithFormat:@"%d",(int)slder.startValue + 16];
 }
@@ -116,7 +116,5 @@
     CGFloat x = r * cos(angle * M_PI / 180.0);
     return CGPointMake(x, y);
 }
-
-
 
 @end
