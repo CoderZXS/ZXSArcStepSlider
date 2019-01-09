@@ -256,7 +256,7 @@ typedef struct {
 }
 
 - (void)sectorToDrawInf {
-    self.circleCenter = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height /2);
+    self.circleCenter = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
     self.radius = self.sectorsRadius;// 圆半径
     
     self.fullLine = self.maxValue - self.minValue;
