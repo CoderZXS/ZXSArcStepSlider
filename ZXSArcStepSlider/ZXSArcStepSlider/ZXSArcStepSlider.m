@@ -17,7 +17,16 @@ typedef struct {
 @interface ZXSArcStepSlider ()
 
 @property (nonatomic, assign) CGFloat circleRadius;// 圆半径
+@property (nonatomic, assign) CGFloat lineWidth;// 线宽度
+@property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
+@property (nonatomic, strong) UIColor *tintColor;// 背景颜色
+@property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
+@property (nonatomic, assign) CGFloat startAngle;// 开始弧度
+@property (nonatomic, assign) CGFloat endAngle;// 结束弧度
 
+@property (nonatomic, assign) CGFloat minValue;// 最小值
+@property (nonatomic, assign) CGFloat maxValue;// 最大值
+@property (nonatomic, assign) CGFloat endValue;// 结束值
 
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
 
@@ -138,16 +147,14 @@ typedef struct {
     self.circleRadius = 135;
     self.startAngle = M_PI_4 * 3;
     self.endAngle = M_PI_4;
-    self.unFillColor = [UIColor grayColor];
-    self.fillColor = [UIColor orangeColor];
-    
-    self.markRadius = 20;
-    self.circleLineWidth = 20;
-    self.lineWidth = 2;
+    self.tintColor = [UIColor grayColor];
+    self.onTintColor = [UIColor orangeColor];
+    self.lineWidth = 20;
+    self.thumbRadius = 20;
     self.minValue = 0.0;
-    self.maxValue = 100.0;
+    self.maxValue = 19;
     self.startValue = 0.0;
-    self.endValue = 50.0;
+    self.endValue = 14;
 }
 
 - (void)setCircleRadius:(CGFloat)circleRadius {
@@ -185,46 +192,46 @@ typedef struct {
     
     // 0.背景圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.endAngle, 0);
-    CGContextSetLineWidth(ctx, self.circleLineWidth);
-    [self.unFillColor setStroke];
+    CGContextSetLineWidth(ctx, self.lineWidth);
+    [self.tintColor setStroke];
     CGContextSetLineCap(ctx, kCGLineCapRound);
     CGContextStrokePath(ctx);
     
     // 1.填充圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.circleOffsetAngle, 0);
-    [self.fillColor setStroke];
+    [self.onTintColor setStroke];
     CGContextStrokePath(ctx);
 
     CGContextSaveGState(ctx);
     
     // 2.标识圆
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.markRadius - (self.lineWidth * 0.5), 0.0, M_PI * 2, 0);
+    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius - 1, 0.0, M_PI * 2, 0);
     CGContextClip(ctx);
     
     CGContextClearRect(ctx, self.bounds);
     CGContextRestoreGState(ctx);
     
     // 3.外圆弧
-    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius + (self.circleLineWidth * 0.5), self.startAngle, M_PI_4, 0);
-    CGContextSetLineWidth(ctx, self.lineWidth);
+    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius + (self.lineWidth * 0.5), self.startAngle, M_PI_4, 0);
+    CGContextSetLineWidth(ctx, 2);
     CGContextStrokePath(ctx);
     
     CGContextSaveGState(ctx);
     
     // 4.左端点圆弧
-    CGContextAddArc(ctx, self.circleCenter.x - len, self.circleCenter.y + len, (self.circleLineWidth * 0.5), -M_PI_4, M_PI_4 * 3, 0);
+    CGContextAddArc(ctx, self.circleCenter.x - len, self.circleCenter.y + len, (self.lineWidth * 0.5), -M_PI_4, M_PI_4 * 3, 0);
     CGContextStrokePath(ctx);
     
     CGContextSaveGState(ctx);
     
     // 5.内圆弧
-    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius - (self.circleLineWidth * 0.5), self.startAngle, M_PI_4, 0);
+    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius - (self.lineWidth * 0.5), self.startAngle, M_PI_4, 0);
     CGContextStrokePath(ctx);
     
     CGContextSaveGState(ctx);
     
     // 6.右端点圆弧
-    CGContextAddArc(ctx, self.circleCenter.x + len, self.circleCenter.y + len, self.circleLineWidth * 0.5, M_PI_4, M_PI_4 * 5, 0);
+    CGContextAddArc(ctx, self.circleCenter.x + len, self.circleCenter.y + len, self.lineWidth * 0.5, M_PI_4, M_PI_4 * 5, 0);
     CGContextStrokePath(ctx);
     
     // 7.圆弧字
@@ -233,22 +240,22 @@ typedef struct {
     }
     
     // 8.标记
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.markRadius, 0.0, M_PI * 2, 0);
-    CGContextSetLineWidth(ctx, self.lineWidth);
-    [[self.fillColor colorWithAlphaComponent:self.markerAlpha] setStroke];
+    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
+    CGContextSetLineWidth(ctx, 2);
+    [[self.onTintColor colorWithAlphaComponent:self.markerAlpha] setStroke];
     CGContextStrokePath(ctx);
     
     // 9.标记背景色
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.markRadius - 1, 0.0, M_PI * 2, 0);
+    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius - 1, 0.0, M_PI * 2, 0);
     [markBackcolor setFill];
-    [[self.fillColor colorWithAlphaComponent:self.markerAlpha] setStroke];
+    [[self.onTintColor colorWithAlphaComponent:self.markerAlpha] setStroke];
     CGContextFillPath(ctx);
     
     // 10.标记上面的字
     NSString *startMarkerStr = [NSString stringWithFormat:@"%.0f", self.startValue + 16];
     [self drawString:startMarkerStr
             withFont:self.markerFontSize
-               color:[self.fillColor colorWithAlphaComponent:self.markerAlpha]
+               color:[self.onTintColor colorWithAlphaComponent:self.markerAlpha]
           withCenter:self.markerCenter];
 }
 
@@ -260,9 +267,9 @@ typedef struct {
                           NSForegroundColorAttributeName : color,
                           NSParagraphStyleAttributeName : paragraph};
     
-    CGFloat x = center.x - (self.markRadius);
-    CGFloat y = center.y - (self.markRadius / 2);
-    CGRect textRect = CGRectMake(x, y, self.markRadius * 2, self.markRadius);
+    CGFloat x = center.x - (self.thumbRadius);
+    CGFloat y = center.y - (self.thumbRadius / 2);
+    CGRect textRect = CGRectMake(x, y, self.thumbRadius * 2, self.thumbRadius);
     
     [s drawInRect:textRect withAttributes:dic];
 }
@@ -270,7 +277,7 @@ typedef struct {
 //判断点击的位置是否是mark内
 - (BOOL)touchInCircleWithPoint:(CGPoint)touchPoint circleCenter:(CGPoint)circleCenter {
     ZXSPolarCoordinate polar = decartToPolar(circleCenter, touchPoint);
-    return polar.radius < self.markRadius;
+    return polar.radius < self.thumbRadius;
 }
 
 - (void)valueChangedNotification {

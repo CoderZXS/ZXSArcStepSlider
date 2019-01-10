@@ -21,7 +21,6 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor whiteColor];
-    
     self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     self.label.textAlignment = NSTextAlignmentCenter;
     self.label.font = [UIFont systemFontOfSize:150];
@@ -31,9 +30,6 @@
     
     ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     [self.view addSubview:slder];
-    slder.maxValue = 19;
-    slder.startValue = 0;
-    slder.endValue = 14;
     [slder addTarget:self action:@selector(valueChange:) forControlEvents:UIControlEventValueChanged];
     slder.drowNumber = ^(CGFloat radius, CGFloat x, CGFloat y) {
         NSArray *angleArray = @[@36, @18, @0];
