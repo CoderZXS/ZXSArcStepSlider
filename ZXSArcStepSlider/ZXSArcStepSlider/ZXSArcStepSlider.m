@@ -16,13 +16,12 @@ typedef struct {
 
 @interface ZXSArcStepSlider ()
 
-@property (nonatomic, assign) CGPoint circleCenter;
-@property (nonatomic, assign) CGFloat radius;
+@property (nonatomic, assign) CGPoint circleCenter;// 圆心
 
-@property (nonatomic, assign) CGFloat fullLine;
-@property (nonatomic, assign) CGFloat circleOffset;
-@property (nonatomic, assign) CGFloat circleLine;
-@property (nonatomic, assign) CGFloat circleEmpty;
+@property (nonatomic, assign) CGFloat fullLine;// 总路径长度
+@property (nonatomic, assign) CGFloat circleOffset;// 标识初始偏移量（距离原点最开始的位置）
+@property (nonatomic, assign) CGFloat circleLine;// 标识可移动的长度
+@property (nonatomic, assign) CGFloat circleEmpty;// 标识不可移动的长度（最大长度值与末尾值的差）
 
 @property (nonatomic, assign) CGFloat circleOffsetAngle;
 @property (nonatomic, assign) CGFloat circleLineAngle;
@@ -63,8 +62,6 @@ typedef struct {
 //开始
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
-    [self sectorToDrawInf];
-    
     if ([self touchInCircleWithPoint:touchPoint circleCenter:self.endMarkerCenter]) {
         self.trackingSectorStartMarker = NO;
         return YES;
@@ -174,6 +171,24 @@ typedef struct {
        2.2设置参数(颜色、线宽、线段样式等)
      3.渲染
      */
+    self.circleCenter = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
+    
+    self.fullLine = self.maxValue - self.minValue;
+    self.circleOffset = self.startValue - self.minValue;
+    self.circleLine = self.endValue - self.startValue;
+    self.circleEmpty = self.maxValue - self.endValue;
+    
+    self.circleOffsetAngle = (self.circleOffset / self.fullLine) * M_PI * 2 + self.startAngle;
+    self.circleLineAngle = (self.circleLine / self.fullLine) * M_PI * 2 + self.circleOffsetAngle;
+    self.circleEmptyAngle = M_PI * 2 + self.startAngle;
+    
+    self.startMarkerCenter = polarToDecart(self.circleCenter, self.sectorsRadius, self.circleOffsetAngle);
+    
+    self.startMarkerRadius = self.markRadius;
+    
+    self.startMarkerFontSize = 18;
+    self.startMarkerAlpha = 1.0;
+    
     // 1.获取上下文
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
@@ -183,10 +198,10 @@ typedef struct {
     UIColor *startCircleColor = self.color;
     UIColor *markBackcolor = [UIColor whiteColor];
     
-    [self sectorToDrawInf];
+    
     CGFloat x = self.circleCenter.x;
     CGFloat y = self.circleCenter.y;
-    CGFloat r = self.radius;
+    CGFloat r = self.sectorsRadius;
     
     //start circle line
     [startCircleColor setStroke];
@@ -253,27 +268,6 @@ typedef struct {
             withFont:self.startMarkerFontSize
                color:[startCircleColor colorWithAlphaComponent:self.startMarkerAlpha]
           withCenter:self.startMarkerCenter];
-}
-
-- (void)sectorToDrawInf {
-    self.circleCenter = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
-    self.radius = self.sectorsRadius;// 圆半径
-    
-    self.fullLine = self.maxValue - self.minValue;
-    self.circleOffset = self.startValue - self.minValue;
-    self.circleLine = self.endValue - self.startValue;
-    self.circleEmpty = self.maxValue - self.endValue;
-    
-    self.circleOffsetAngle = (self.circleOffset / self.fullLine) * M_PI * 2 + self.startAngle;
-    self.circleLineAngle = (self.circleLine / self.fullLine) * M_PI * 2 + self.circleOffsetAngle;
-    self.circleEmptyAngle = M_PI * 2 + self.startAngle;
-    
-    self.startMarkerCenter = polarToDecart(self.circleCenter, self.radius, self.circleOffsetAngle);
-    
-    self.startMarkerRadius = self.markRadius;
-    
-    self.startMarkerFontSize = 18;
-    self.startMarkerAlpha = 1.0;
 }
 
 //mark上面的字
