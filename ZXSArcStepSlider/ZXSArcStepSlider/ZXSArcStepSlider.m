@@ -33,9 +33,6 @@ typedef struct {
 @property (nonatomic, assign) CGFloat endValue;// 结束值
 
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
-
-@property (nonatomic, assign) CGFloat circleOffsetAngle;// 标识起点弧度
-
 @property (nonatomic, assign) CGPoint markerCenter;// 标识中心点
 
 @property (nonatomic, assign) BOOL trackingSectorStartMarker;
@@ -169,10 +166,8 @@ typedef struct {
 - (void)draw {
     self.circleCenter = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
     // 值偏移量
-    CGFloat valueOffset = self.startValue - self.minValue;
-    self.circleOffsetAngle = (valueOffset / self.valueWidth) * self.angleWidth + self.startAngle;
-    self.markerCenter = polarToDecart(self.circleCenter, self.circleRadius, self.circleOffsetAngle);
-    
+    CGFloat currentAngle = ((self.startValue - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
+    self.markerCenter = polarToDecart(self.circleCenter, self.circleRadius, currentAngle);
     /*
          1.获取图形上下文
          2.绘图
@@ -190,7 +185,7 @@ typedef struct {
     CGContextStrokePath(ctx);
     
     // 2.填充圆弧
-    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.circleOffsetAngle, 0);
+    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, currentAngle, 0);
     [self.onTintColor setStroke];
     CGContextStrokePath(ctx);
     
