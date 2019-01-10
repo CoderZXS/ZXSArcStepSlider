@@ -18,11 +18,12 @@ typedef struct {
 
 @property (nonatomic, assign) CGFloat circleRadius;// 圆半径
 @property (nonatomic, assign) CGFloat lineWidth;// 线宽度
-@property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
 @property (nonatomic, strong) UIColor *tintColor;// 背景颜色
 @property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
 @property (nonatomic, assign) CGFloat endAngle;// 结束弧度
+
+@property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
 
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
@@ -145,12 +146,14 @@ typedef struct {
 - (void)setupInit {
     self.backgroundColor = [UIColor clearColor];
     self.circleRadius = 135;
-    self.startAngle = M_PI_4 * 3;
-    self.endAngle = M_PI_4;
+    self.lineWidth = 20;
     self.tintColor = [UIColor grayColor];
     self.onTintColor = [UIColor orangeColor];
-    self.lineWidth = 20;
+    self.startAngle = M_PI_4 * 3;
+    self.endAngle = M_PI_4;
+    
     self.thumbRadius = 20;
+    
     self.minValue = 0.0;
     self.maxValue = 19;
     self.startValue = 0.0;
