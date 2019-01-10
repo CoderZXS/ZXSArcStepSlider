@@ -31,12 +31,9 @@
     
     ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     [self.view addSubview:slder];
-    slder.startAngle = M_PI_4 * 3;
-    slder.color = [UIColor greenColor];
     slder.maxValue = 19;
     slder.startValue = 0;
     slder.endValue = 14;
-    slder.sectorsRadius = 135;
     [slder addTarget:self action:@selector(valueChange:) forControlEvents:UIControlEventValueChanged];
     slder.drowNumber = ^(CGFloat radius, CGFloat x, CGFloat y) {
         NSArray *angleArray = @[@36, @18, @0];

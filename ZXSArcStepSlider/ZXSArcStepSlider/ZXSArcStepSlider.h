@@ -12,12 +12,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZXSArcStepSlider : UIControl
 
-@property (nonatomic, assign) CGFloat sectorsRadius;// 扇形半径
-@property (nonatomic, assign) CGFloat startAngle;// 开始角度
+@property (nonatomic, assign) CGFloat startAngle;// 开始弧度
+@property (nonatomic, assign) CGFloat endAngle;// 结束弧度
+@property (nonatomic, strong) UIColor *unFillColor;// 圆弧背景颜色
+@property (nonatomic, strong) UIColor *fillColor;// 圆弧填充颜色
+
+
 @property (nonatomic, assign) CGFloat markRadius;// 标记半径
 @property (nonatomic, assign) CGFloat circleLineWidth;// 圆弧宽度
 @property (nonatomic, assign) CGFloat lineWidth;// 线宽
-@property (nonatomic, strong) UIColor *color;// 填充颜色
+
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
 @property (nonatomic, assign) CGFloat startValue;// 开始值
