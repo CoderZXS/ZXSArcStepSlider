@@ -27,11 +27,9 @@ typedef struct {
 @property (nonatomic, assign) CGFloat circleLineAngle;// 圆弧终点弧度
 @property (nonatomic, assign) CGFloat circleEmptyAngle;// 标识不可滚动弧度
 
-@property (nonatomic, assign) CGPoint markerCenter;
-
-@property (nonatomic, assign) CGFloat markerFontSize;
-
-@property (nonatomic, assign) CGFloat markerAlpha;
+@property (nonatomic, assign) CGPoint markerCenter;// 标识中心点
+@property (nonatomic, assign) CGFloat markerFontSize;// 标识文字尺寸
+@property (nonatomic, assign) CGFloat markerAlpha;// 标识文字颜色透明度
 
 @property (nonatomic, assign) BOOL trackingSectorStartMarker;
 
