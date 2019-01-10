@@ -23,15 +23,12 @@ typedef struct {
 @property (nonatomic, assign) CGFloat circleLine;// 标识可移动的长度
 @property (nonatomic, assign) CGFloat circleEmpty;// 标识不可移动的长度（最大长度值与末尾值的差）
 
-@property (nonatomic, assign) CGFloat circleOffsetAngle;
-@property (nonatomic, assign) CGFloat circleLineAngle;
-@property (nonatomic, assign) CGFloat circleEmptyAngle;
+@property (nonatomic, assign) CGFloat circleOffsetAngle;// 标识起点弧度
+@property (nonatomic, assign) CGFloat circleLineAngle;// 圆弧终点弧度
+@property (nonatomic, assign) CGFloat circleEmptyAngle;// 标识不可滚动弧度
 
 @property (nonatomic, assign) CGPoint startMarkerCenter;
 @property (nonatomic, assign) CGPoint endMarkerCenter;
-
-@property (nonatomic, assign) CGFloat startMarkerRadius;
-@property (nonatomic, assign) CGFloat endMarkerRadius;
 
 @property (nonatomic, assign) CGFloat startMarkerFontSize;
 @property (nonatomic, assign) CGFloat endMarkerFontize;
@@ -78,8 +75,7 @@ typedef struct {
 //持续
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
-    CGPoint ceter = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
-    ZXSPolarCoordinate polar = decartToPolar(ceter, touchPoint);
+    ZXSPolarCoordinate polar = decartToPolar(self.circleCenter, touchPoint);
     
     double correctedAngle;
     if(polar.angle < self.startAngle) correctedAngle = polar.angle + (2 * M_PI - self.startAngle);
@@ -183,9 +179,6 @@ typedef struct {
     self.circleEmptyAngle = M_PI * 2 + self.startAngle;
     
     self.startMarkerCenter = polarToDecart(self.circleCenter, self.sectorsRadius, self.circleOffsetAngle);
-    
-    self.startMarkerRadius = self.markRadius;
-    
     self.startMarkerFontSize = 18;
     self.startMarkerAlpha = 1.0;
     
@@ -214,14 +207,14 @@ typedef struct {
     
     //clearing place for start marker
     CGContextSaveGState(ctx);
-    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.markRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
     CGContextClip(ctx);
     CGContextClearRect(ctx, self.bounds);
     CGContextRestoreGState(ctx);
     
     //clearing place for end marker
     CGContextSaveGState(ctx);
-    CGContextAddArc(ctx, self.endMarkerCenter.x, self.endMarkerCenter.y, self.endMarkerRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
+    CGContextAddArc(ctx, self.endMarkerCenter.x, self.endMarkerCenter.y, self.markRadius - (self.lineWidth / 2.0), 0.0, 6.28, 0);
     CGContextClip(ctx);
     CGContextClearRect(ctx, self.bounds);
     CGContextRestoreGState(ctx);
@@ -255,12 +248,12 @@ typedef struct {
     //标记
     CGContextSetLineWidth(ctx, self.lineWidth);
     [[startCircleColor colorWithAlphaComponent:self.startMarkerAlpha] setStroke];
-    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius, 0.0, 6.28, 0);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.markRadius, 0.0, 6.28, 0);
     //标记背景色
     CGContextStrokePath(ctx);
     [markBackcolor setFill];
     [[startCircleColor colorWithAlphaComponent:self.startMarkerAlpha] setStroke];
-    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.startMarkerRadius - 1, 0.0, 6.28, 0);
+    CGContextAddArc(ctx, self.startMarkerCenter.x, self.startMarkerCenter.y, self.markRadius - 1, 0.0, 6.28, 0);
     CGContextFillPath(ctx);
     //标记上面的字
     NSString *startMarkerStr = [NSString stringWithFormat:@"%.0f", self.startValue + 16];
