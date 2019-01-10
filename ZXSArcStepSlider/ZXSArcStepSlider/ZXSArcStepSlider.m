@@ -71,21 +71,13 @@ typedef struct {
     CGPoint touchPoint = [touch locationInView:self];
     ZXSPolarCoordinate polar = decartToPolar(self.circleCenter, touchPoint);
     
-    double correctedAngle;
-    if (polar.angle < self.startAngle) {
-        correctedAngle = polar.angle + 2 * M_PI - self.startAngle;
-    } else {
-        correctedAngle = polar.angle - self.startAngle;
-    }
-    
-    double procent = correctedAngle / self.angleWidth;
-    
-    double newValue = procent * (self.maxValue - self.minValue) + self.minValue;
+    double angleOffset = (polar.angle < self.startAngle) ? (polar.angle + 2 * M_PI - self.startAngle) : (polar.angle - self.startAngle);
+    double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
     
     if (self.trackingSectorStartMarker) {
         if (newValue > self.startValue) {
             double diff = newValue - self.startValue;
-            if (diff > ((self.maxValue - self.minValue)/2)) {
+            if (diff > (self.valueWidth * 0.5)) {
                 self.startValue = self.minValue;
                 [self valueChangedNotification];
                 [self setNeedsDisplay];
@@ -106,7 +98,7 @@ typedef struct {
     } else {
         if (newValue < self.endValue) {
             double diff = self.endValue - newValue;
-            if (diff > ((self.maxValue - self.minValue)/2)) {
+            if (diff > (self.valueWidth * 0.5)) {
                 self.endValue = self.maxValue;
                 [self valueChangedNotification];
                 [self setNeedsDisplay];
@@ -242,11 +234,14 @@ CGPoint polarToDecart(CGPoint startPoint, CGFloat radius, CGFloat angle) {
 ZXSPolarCoordinate decartToPolar(CGPoint center, CGPoint point) {
     double x = point.x - center.x;
     double y = point.y - center.y;
-    
     ZXSPolarCoordinate polar;
     polar.radius = sqrt(pow(x, 2.0) + pow(y, 2.0));
     polar.angle = acos(x / (sqrt(pow(x, 2.0) + pow(y, 2.0))));
-    if(y < 0) polar.angle = 2 * M_PI - polar.angle;
+    
+    if (y < 0) {
+        polar.angle = 2 * M_PI - polar.angle;
+    }
+    
     return polar;
 }
 
