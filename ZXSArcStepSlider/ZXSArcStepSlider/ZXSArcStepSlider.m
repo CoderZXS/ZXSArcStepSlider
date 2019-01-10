@@ -146,11 +146,11 @@ typedef struct {
 - (void)setupInit {
     self.backgroundColor = [UIColor clearColor];
     self.circleRadius = 135;
-    self.lineWidth = 20;
+    self.lineWidth = 10;
     self.tintColor = [UIColor grayColor];
     self.onTintColor = [UIColor orangeColor];
     self.startAngle = M_PI_4 * 3;
-    self.endAngle = M_PI_4;
+    self.endAngle = M_PI_4 + M_PI * 2;
     
     self.thumbRadius = 20;
     
@@ -188,8 +188,6 @@ typedef struct {
     self.markerFontSize = 18;
     self.markerAlpha = 1.0;
     UIColor *markBackcolor = [UIColor whiteColor];
-    CGFloat len = self.circleRadius / sqrt(2);
-    
     
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
@@ -203,38 +201,6 @@ typedef struct {
     // 1.填充圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.circleOffsetAngle, 0);
     [self.onTintColor setStroke];
-    CGContextStrokePath(ctx);
-
-    CGContextSaveGState(ctx);
-    
-    // 2.标识圆
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius - 1, 0.0, M_PI * 2, 0);
-    CGContextClip(ctx);
-    
-    CGContextClearRect(ctx, self.bounds);
-    CGContextRestoreGState(ctx);
-    
-    // 3.外圆弧
-    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius + (self.lineWidth * 0.5), self.startAngle, M_PI_4, 0);
-    CGContextSetLineWidth(ctx, 2);
-    CGContextStrokePath(ctx);
-    
-    CGContextSaveGState(ctx);
-    
-    // 4.左端点圆弧
-    CGContextAddArc(ctx, self.circleCenter.x - len, self.circleCenter.y + len, (self.lineWidth * 0.5), -M_PI_4, M_PI_4 * 3, 0);
-    CGContextStrokePath(ctx);
-    
-    CGContextSaveGState(ctx);
-    
-    // 5.内圆弧
-    CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius - (self.lineWidth * 0.5), self.startAngle, M_PI_4, 0);
-    CGContextStrokePath(ctx);
-    
-    CGContextSaveGState(ctx);
-    
-    // 6.右端点圆弧
-    CGContextAddArc(ctx, self.circleCenter.x + len, self.circleCenter.y + len, self.lineWidth * 0.5, M_PI_4, M_PI_4 * 5, 0);
     CGContextStrokePath(ctx);
     
     // 7.圆弧字
