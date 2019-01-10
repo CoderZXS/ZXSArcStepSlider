@@ -48,8 +48,8 @@
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
         }
-        angleArray = @[@18, @36, @54, @72, @90];
         
+        angleArray = @[@18, @36, @54, @72, @90];
         for (NSNumber *number in angleArray) {
             CGFloat angle = number.floatValue;
             CGPoint point = [self getPointWithAngle:angle radius:radius];
@@ -64,8 +64,8 @@
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
         }
-        angleArray = @[@72, @54, @36, @18, @0];
         
+        angleArray = @[@72, @54, @36, @18, @0];
         for (NSNumber *number in angleArray) {
             CGFloat angle = number.floatValue;
             CGPoint point = [self getPointWithAngle:angle radius:radius];
@@ -80,8 +80,8 @@
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
         }
-        angleArray = @[@18, @36];
         
+        angleArray = @[@18, @36];
         for (NSNumber *number in angleArray) {
             CGFloat angle = number.floatValue;
             CGPoint point = [self getPointWithAngle:angle radius:radius];
