@@ -20,7 +20,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.view.backgroundColor = [UIColor blackColor];
     self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     self.label.textAlignment = NSTextAlignmentCenter;
     self.label.font = [UIFont systemFontOfSize:150];
@@ -44,6 +44,7 @@
             paragraph.alignment = NSTextAlignmentCenter;
             NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName : [UIColor blackColor],
+                                  NSBackgroundColorAttributeName : [UIColor redColor],
                                   NSParagraphStyleAttributeName : paragraph};
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
@@ -60,6 +61,7 @@
             paragraph.alignment = NSTextAlignmentCenter;
             NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName : [UIColor blackColor],
+                                  NSBackgroundColorAttributeName : [UIColor redColor],
                                   NSParagraphStyleAttributeName : paragraph};
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
@@ -76,6 +78,7 @@
             paragraph.alignment = NSTextAlignmentCenter;
             NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName : [UIColor blackColor],
+                                  NSBackgroundColorAttributeName : [UIColor redColor],
                                   NSParagraphStyleAttributeName : paragraph};
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;
@@ -92,6 +95,7 @@
             paragraph.alignment = NSTextAlignmentCenter;
             NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName : [UIColor blackColor],
+                                  NSBackgroundColorAttributeName : [UIColor redColor],
                                   NSParagraphStyleAttributeName : paragraph};
             [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
             num++;

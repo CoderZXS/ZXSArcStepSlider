@@ -207,40 +207,11 @@ typedef struct {
     if (self.drowNumber) {
         self.drowNumber(self.circleRadius, self.circleCenter.x, self.circleCenter.y);
     }
-    
-    // 8.标记
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
-    CGContextSetLineWidth(ctx, 2);
-    [[self.onTintColor colorWithAlphaComponent:self.markerAlpha] setStroke];
-    CGContextStrokePath(ctx);
-    
-    // 9.标记背景色
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius - 1, 0.0, M_PI * 2, 0);
-    [markBackcolor setFill];
-    [[self.onTintColor colorWithAlphaComponent:self.markerAlpha] setStroke];
-    CGContextFillPath(ctx);
-    
-    // 10.标记上面的字
-    NSString *startMarkerStr = [NSString stringWithFormat:@"%.0f", self.startValue + 16];
-    [self drawString:startMarkerStr
-            withFont:self.markerFontSize
-               color:[self.onTintColor colorWithAlphaComponent:self.markerAlpha]
-          withCenter:self.markerCenter];
-}
 
-//mark上面的字
-- (void)drawString:(NSString *)s withFont:(CGFloat)fontSize color:(UIColor *)color withCenter:(CGPoint)center {
-    NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
-    paragraph.alignment = NSTextAlignmentCenter;
-    NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:fontSize],
-                          NSForegroundColorAttributeName : color,
-                          NSParagraphStyleAttributeName : paragraph};
-    
-    CGFloat x = center.x - (self.thumbRadius);
-    CGFloat y = center.y - (self.thumbRadius / 2);
-    CGRect textRect = CGRectMake(x, y, self.thumbRadius * 2, self.thumbRadius);
-    
-    [s drawInRect:textRect withAttributes:dic];
+    // 9.滑轮
+    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
+    [markBackcolor setFill];
+    CGContextFillPath(ctx);
 }
 
 //判断点击的位置是否是mark内
