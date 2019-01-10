@@ -22,27 +22,21 @@ typedef struct {
 @property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
 @property (nonatomic, assign) CGFloat endAngle;// 结束弧度
+@property (nonatomic, assign) CGFloat angleWidth;// 弧度宽度
 
 @property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
+@property (nonatomic, strong) UIColor *thumbColor;// 滑块颜色
 
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
+@property (nonatomic, assign) CGFloat valueWidth;// 取值宽度
 @property (nonatomic, assign) CGFloat endValue;// 结束值
 
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
 
-@property (nonatomic, assign) CGFloat fullLine;// 总路径长度
-@property (nonatomic, assign) CGFloat circleOffset;// 标识初始偏移量（距离原点最开始的位置）
-@property (nonatomic, assign) CGFloat circleLine;// 标识可移动的长度
-@property (nonatomic, assign) CGFloat circleEmpty;// 标识不可移动的长度（最大长度值与末尾值的差）
-
 @property (nonatomic, assign) CGFloat circleOffsetAngle;// 标识起点弧度
-@property (nonatomic, assign) CGFloat circleLineAngle;// 圆弧终点弧度
-@property (nonatomic, assign) CGFloat circleEmptyAngle;// 标识不可滚动弧度
 
 @property (nonatomic, assign) CGPoint markerCenter;// 标识中心点
-@property (nonatomic, assign) CGFloat markerFontSize;// 标识文字尺寸
-@property (nonatomic, assign) CGFloat markerAlpha;// 标识文字颜色透明度
 
 @property (nonatomic, assign) BOOL trackingSectorStartMarker;
 
@@ -81,10 +75,13 @@ typedef struct {
     ZXSPolarCoordinate polar = decartToPolar(self.circleCenter, touchPoint);
     
     double correctedAngle;
-    if(polar.angle < self.startAngle) correctedAngle = polar.angle + (2 * M_PI - self.startAngle);
-    else correctedAngle = polar.angle - self.startAngle;
+    if (polar.angle < self.startAngle) {
+        correctedAngle = polar.angle + 2 * M_PI - self.startAngle;
+    } else {
+        correctedAngle = polar.angle - self.startAngle;
+    }
     
-    double procent = correctedAngle / (M_PI * 2);
+    double procent = correctedAngle / self.angleWidth;
     
     double newValue = procent * (self.maxValue - self.minValue) + self.minValue;
     
@@ -151,13 +148,17 @@ typedef struct {
     self.onTintColor = [UIColor orangeColor];
     self.startAngle = M_PI_4 * 3;
     self.endAngle = M_PI_4 + M_PI * 2;
+    self.angleWidth = self.endAngle - self.startAngle;
     
-    self.thumbRadius = 20;
+    self.thumbRadius = 15;
+    self.thumbColor = [UIColor whiteColor];
     
     self.minValue = 0.0;
-    self.maxValue = 19;
+    self.maxValue = 9;
+    self.valueWidth = self.maxValue - self.minValue;
+    
     self.startValue = 0.0;
-    self.endValue = 14;
+    self.endValue = 9;
 }
 
 - (void)setCircleRadius:(CGFloat)circleRadius {
@@ -166,51 +167,36 @@ typedef struct {
 }
 
 - (void)draw {
-    /*
-     1.获取图形上下文
-     2.绘图
-       2.1画图
-       2.2设置参数(颜色、线宽、线段样式等)
-     3.渲染
-     */
     self.circleCenter = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
-    
-    self.fullLine = self.maxValue - self.minValue;
-    self.circleOffset = self.startValue - self.minValue;
-    self.circleLine = self.endValue - self.startValue;
-    self.circleEmpty = self.maxValue - self.endValue;
-    
-    self.circleOffsetAngle = (self.circleOffset / self.fullLine) * M_PI * 2 + self.startAngle;
-    self.circleLineAngle = (self.circleLine / self.fullLine) * M_PI * 2 + self.circleOffsetAngle;
-    self.circleEmptyAngle = M_PI * 2 + self.startAngle;
-    
+    // 值偏移量
+    CGFloat valueOffset = self.startValue - self.minValue;
+    self.circleOffsetAngle = (valueOffset / self.valueWidth) * self.angleWidth + self.startAngle;
     self.markerCenter = polarToDecart(self.circleCenter, self.circleRadius, self.circleOffsetAngle);
-    self.markerFontSize = 18;
-    self.markerAlpha = 1.0;
-    UIColor *markBackcolor = [UIColor whiteColor];
     
+    /*
+         1.获取图形上下文
+         2.绘图
+         2.1画图
+         2.2设置参数(颜色、线宽、线段样式等)
+         3.渲染
+     */
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
-    // 0.背景圆弧
+    // 1.背景圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.endAngle, 0);
     CGContextSetLineWidth(ctx, self.lineWidth);
     [self.tintColor setStroke];
     CGContextSetLineCap(ctx, kCGLineCapRound);
     CGContextStrokePath(ctx);
     
-    // 1.填充圆弧
+    // 2.填充圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.circleOffsetAngle, 0);
     [self.onTintColor setStroke];
     CGContextStrokePath(ctx);
     
-    // 7.圆弧字
-    if (self.drowNumber) {
-        self.drowNumber(self.circleRadius, self.circleCenter.x, self.circleCenter.y);
-    }
-
-    // 9.滑轮
+    // 3.滑轮
     CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
-    [markBackcolor setFill];
+    [self.thumbColor setFill];
     CGContextFillPath(ctx);
 }
 
@@ -222,6 +208,13 @@ typedef struct {
 
 - (void)valueChangedNotification {
     [self sendActionsForControlEvents:UIControlEventValueChanged];
+}
+
+//通过角度获得x,y值
+- (CGPoint)getPointWithAngle:(CGFloat)angle radius:(CGFloat)r {
+    CGFloat y = r * sin(angle * M_PI / 180.0);
+    CGFloat x = r * cos(angle * M_PI / 180.0);
+    return CGPointMake(x, y);
 }
 
 CGFloat toDegrees(CGFloat radians) {
@@ -261,6 +254,7 @@ ZXSPolarCoordinate decartToPolar(CGPoint center, CGPoint point) {
     if(y < 0) polar.angle = 2 * M_PI - polar.angle;
     return polar;
 }
+
 
 
 @end

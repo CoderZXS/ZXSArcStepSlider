@@ -25,93 +25,18 @@
     self.label.textAlignment = NSTextAlignmentCenter;
     self.label.font = [UIFont systemFontOfSize:150];
     self.label.textColor = [UIColor redColor];
-    self.label.text = @"16";
+    self.label.text = @"0";
     [self.view addSubview:self.label];
     
     ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
     [self.view addSubview:slder];
     [slder addTarget:self action:@selector(valueChange:) forControlEvents:UIControlEventValueChanged];
-    slder.drowNumber = ^(CGFloat radius, CGFloat x, CGFloat y) {
-        NSArray *angleArray = @[@36, @18, @0];
-        NSInteger num = 16;
-        for (NSNumber *number in angleArray) {
-            CGFloat angle = number.floatValue;
-            CGPoint point = [self getPointWithAngle:angle radius:radius];
-            CGFloat xx = x - point.x;
-            CGFloat yy = y + point.y;
-            CGRect textRect = CGRectMake(xx - 10, yy - 6, 20, 12);
-            NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
-            paragraph.alignment = NSTextAlignmentCenter;
-            NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
-                                  NSForegroundColorAttributeName : [UIColor blackColor],
-                                  NSBackgroundColorAttributeName : [UIColor redColor],
-                                  NSParagraphStyleAttributeName : paragraph};
-            [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
-            num++;
-        }
-        
-        angleArray = @[@18, @36, @54, @72, @90];
-        for (NSNumber *number in angleArray) {
-            CGFloat angle = number.floatValue;
-            CGPoint point = [self getPointWithAngle:angle radius:radius];
-            CGFloat xx = x-point.x;
-            CGFloat yy = y-point.y;
-            CGRect textRect = CGRectMake(xx - 10, yy - 6, 20, 12);
-            NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
-            paragraph.alignment = NSTextAlignmentCenter;
-            NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
-                                  NSForegroundColorAttributeName : [UIColor blackColor],
-                                  NSBackgroundColorAttributeName : [UIColor redColor],
-                                  NSParagraphStyleAttributeName : paragraph};
-            [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
-            num++;
-        }
-        
-        angleArray = @[@72, @54, @36, @18, @0];
-        for (NSNumber *number in angleArray) {
-            CGFloat angle = number.floatValue;
-            CGPoint point = [self getPointWithAngle:angle radius:radius];
-            CGFloat xx = x + point.x;
-            CGFloat yy = y - point.y;
-            CGRect textRect = CGRectMake(xx - 10, yy - 6, 20, 12);
-            NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
-            paragraph.alignment = NSTextAlignmentCenter;
-            NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
-                                  NSForegroundColorAttributeName : [UIColor blackColor],
-                                  NSBackgroundColorAttributeName : [UIColor redColor],
-                                  NSParagraphStyleAttributeName : paragraph};
-            [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
-            num++;
-        }
-        
-        angleArray = @[@18, @36];
-        for (NSNumber *number in angleArray) {
-            CGFloat angle = number.floatValue;
-            CGPoint point = [self getPointWithAngle:angle radius:radius];
-            CGFloat xx = x + point.x;
-            CGFloat yy = y + point.y;
-            CGRect textRect = CGRectMake(xx - 10, yy - 6, 20, 12);
-            NSMutableParagraphStyle *paragraph = [[NSMutableParagraphStyle alloc] init];
-            paragraph.alignment = NSTextAlignmentCenter;
-            NSDictionary *dic = @{NSFontAttributeName : [UIFont systemFontOfSize:12],
-                                  NSForegroundColorAttributeName : [UIColor blackColor],
-                                  NSBackgroundColorAttributeName : [UIColor redColor],
-                                  NSParagraphStyleAttributeName : paragraph};
-            [[NSString stringWithFormat:@"%ld",(long)num] drawInRect:textRect withAttributes:dic];
-            num++;
-        }
-    };
 }
 
 - (void)valueChange:(ZXSArcStepSlider *)slder {
-    self.label.text = [NSString stringWithFormat:@"%d",(int)slder.startValue + 16];
+    self.label.text = [NSString stringWithFormat:@"%d",(int)slder.startValue];
 }
 
-//通过角度获得x,y值
-- (CGPoint)getPointWithAngle:(CGFloat)angle radius:(CGFloat)r {
-    CGFloat y = r * sin(angle * M_PI / 180.0);
-    CGFloat x = r * cos(angle * M_PI / 180.0);
-    return CGPointMake(x, y);
-}
+
 
 @end
