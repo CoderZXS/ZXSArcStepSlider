@@ -17,6 +17,7 @@ typedef struct {
 @interface ZXSArcStepSlider ()
 
 @property (nonatomic, assign) CGFloat circleRadius;// 圆半径
+@property (nonatomic, assign) CGPoint circleCenter;// 圆心
 @property (nonatomic, assign) CGFloat lineWidth;// 线宽度
 @property (nonatomic, strong) UIColor *tintColor;// 背景颜色
 @property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
@@ -26,16 +27,11 @@ typedef struct {
 
 @property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
 @property (nonatomic, strong) UIColor *thumbColor;// 滑块颜色
+@property (nonatomic, assign) CGPoint thumbCenter;// 滑块中心点
 
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
 @property (nonatomic, assign) CGFloat valueWidth;// 取值宽度
-@property (nonatomic, assign) CGFloat endValue;// 结束值
-
-@property (nonatomic, assign) CGPoint circleCenter;// 圆心
-@property (nonatomic, assign) CGPoint markerCenter;// 标识中心点
-
-@property (nonatomic, assign) BOOL trackingSectorStartMarker;
 
 @end
 
@@ -58,72 +54,29 @@ typedef struct {
 //开始
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
-    if ([self touchInCircleWithPoint:touchPoint circleCenter:self.markerCenter]) {
-        self.trackingSectorStartMarker = YES;
-        return YES;
-    }
-    
-    return NO;
+    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
 }
 
 //持续
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
     ZXSPolarCoordinate polar = decartToPolar(self.circleCenter, touchPoint);
-    
     double angleOffset = (polar.angle < self.startAngle) ? (polar.angle + 2 * M_PI - self.startAngle) : (polar.angle - self.startAngle);
     double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
+    NSLog(@"newValue = %f",newValue);
     
-    if (self.trackingSectorStartMarker) {
-        if (newValue > self.startValue) {
-            double diff = newValue - self.startValue;
-            if (diff > (self.valueWidth * 0.5)) {
-                self.startValue = self.minValue;
-                [self valueChangedNotification];
-                [self setNeedsDisplay];
-                return YES;
-            }
-        }
-        
-        if (newValue >= self.endValue) {
-            self.startValue = self.endValue;
-            [self valueChangedNotification];
-            [self setNeedsDisplay];
-            return YES;
-        }
-        
-        self.startValue = newValue;
-        [self valueChangedNotification];
-        
-    } else {
-        if (newValue < self.endValue) {
-            double diff = self.endValue - newValue;
-            if (diff > (self.valueWidth * 0.5)) {
-                self.endValue = self.maxValue;
-                [self valueChangedNotification];
-                [self setNeedsDisplay];
-                return YES;
-            }
-        }
-        
-        if (newValue <= self.startValue) {
-            self.endValue = self.startValue;
-            [self valueChangedNotification];
-            [self setNeedsDisplay];
-            return YES;
-        }
-        
-        self.endValue = newValue;
-        [self valueChangedNotification];
-    }
+    // 过滤不合理的新值
+    BOOL isTure = newValue < self.minValue || newValue > self.maxValue;
+    if (isTure) return NO;
     
+    self.value = newValue;
+    [self valueChangedNotification];
     [self setNeedsDisplay];
     return YES;
 }
 
 //结束
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    self.trackingSectorStartMarker = NO;
 }
 
 
@@ -142,12 +95,10 @@ typedef struct {
     self.thumbRadius = 15;
     self.thumbColor = [UIColor whiteColor];
     
+    self.value = 0.0;
     self.minValue = 0.0;
     self.maxValue = 9;
     self.valueWidth = self.maxValue - self.minValue;
-    
-    self.startValue = 0.0;
-    self.endValue = 9;
 }
 
 - (void)setCircleRadius:(CGFloat)circleRadius {
@@ -158,8 +109,8 @@ typedef struct {
 - (void)draw {
     self.circleCenter = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
     // 值偏移量
-    CGFloat currentAngle = ((self.startValue - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
-    self.markerCenter = polarToDecart(self.circleCenter, self.circleRadius, currentAngle);
+    CGFloat currentAngle = ((self.value - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
+    self.thumbCenter = polarToDecart(self.circleCenter, self.circleRadius, currentAngle);
     /*
          1.获取图形上下文
          2.绘图
@@ -182,7 +133,7 @@ typedef struct {
     CGContextStrokePath(ctx);
     
     // 3.滑轮
-    CGContextAddArc(ctx, self.markerCenter.x, self.markerCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
+    CGContextAddArc(ctx, self.thumbCenter.x, self.thumbCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
     [self.thumbColor setFill];
     CGContextFillPath(ctx);
 }
