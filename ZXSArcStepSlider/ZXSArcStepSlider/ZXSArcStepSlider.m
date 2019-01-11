@@ -58,18 +58,21 @@ typedef struct {
     [self draw];
 }
 
-//开始
+// 点击开始
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super beginTrackingWithTouch:touch withEvent:event];
     return [self handleBeginTrackingWithTouch:touch withEvent:event];
 }
 
-//持续
+// 拖动过程中
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super continueTrackingWithTouch:touch withEvent:event];
     return [self handleContinueTrackingWithTouch:touch withEvent:event];
 }
 
-//结束
+// 拖动结束
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super endTrackingWithTouch:touch withEvent:event];
     return [self handleEndTrackingWithTouch:touch withEvent:event];
 }
 
@@ -153,11 +156,6 @@ typedef struct {
     double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
     double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
     NSLog(@"newValue = %f",newValue);
-    
-    // 过滤不合理的新值
-    BOOL isTure = newValue < (self.minValue - 1) || newValue > self.maxValue;
-    if (isTure) return NO;
-    
     self.value = newValue;
     return YES;
 }
@@ -169,7 +167,7 @@ typedef struct {
 
 - (void)setValue:(CGFloat)value {
     if (_value != value) {
-        _value = value;
+        _value = MIN(MAX(value, 0.0), 8.999999);
         [self setNeedsDisplay];
     }
 }
