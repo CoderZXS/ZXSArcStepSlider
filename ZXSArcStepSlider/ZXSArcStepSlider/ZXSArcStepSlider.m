@@ -20,7 +20,7 @@ typedef struct {
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
 
 // 圆弧
-@property (nonatomic, assign) CGFloat lineWidth;// 线宽度
+@property (nonatomic, assign) CGFloat borderWidth;// 线宽度
 @property (nonatomic, strong) UIColor *tintColor;// 背景颜色
 @property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
@@ -81,7 +81,7 @@ typedef struct {
     
     self.circleRadius = 135;
     
-    self.lineWidth = 10;
+    self.borderWidth = 10;
     self.tintColor = [UIColor whiteColor];
     self.onTintColor = [UIColor orangeColor];
     self.startAngle = M_PI_4 * 3;
@@ -116,7 +116,7 @@ typedef struct {
     
     // 1.背景圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.endAngle, 0);
-    CGContextSetLineWidth(ctx, self.lineWidth);
+    CGContextSetLineWidth(ctx, self.borderWidth);
     [self.tintColor setStroke];
     CGContextSetLineCap(ctx, kCGLineCapRound);
     CGContextStrokePath(ctx);
