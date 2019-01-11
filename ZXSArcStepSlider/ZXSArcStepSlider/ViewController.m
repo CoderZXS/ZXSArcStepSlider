@@ -34,7 +34,7 @@
 }
 
 - (void)valueChange:(ZXSArcStepSlider *)slder {
-    self.label.text = [NSString stringWithFormat:@"%d",(int)slder.value];
+    self.label.text = [NSString stringWithFormat:@"%ld",slder.index];
 }
 
 

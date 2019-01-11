@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZXSArcStepSlider : UIControl
 
-@property (nonatomic, assign) CGFloat value;// 当前值
+@property (nonatomic, assign) NSInteger index;// 当前下标
 
 @end
 
