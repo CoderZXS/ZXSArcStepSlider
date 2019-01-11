@@ -150,8 +150,7 @@ typedef struct {
 - (BOOL)handleBeginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     NSLog(@"handleBeginTrackingWithTouch");
     CGPoint touchPoint = [touch locationInView:self];
-    BOOL isTure = [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
-    return isTure;
+    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
 }
 
 - (BOOL)handleContinueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
