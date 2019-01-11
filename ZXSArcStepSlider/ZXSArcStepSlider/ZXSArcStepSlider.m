@@ -65,24 +65,12 @@ typedef struct {
 
 //持续
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    CGPoint touchPoint = [touch locationInView:self];
-    ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
-    double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
-    double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
-    NSLog(@"newValue = %f",newValue);
-    
-    // 过滤不合理的新值
-    BOOL isTure = newValue < (self.minValue - 1) || newValue > self.maxValue;
-    if (isTure) return NO;
-    
-    self.value = newValue;
-    return YES;
+    return [self handleContinueTrackingWithTouch:touch withEvent:event];
 }
 
 //结束
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    self.index = roundf(self.value);
-    self.value = self.index;
+    return [self handleEndTrackingWithTouch:touch withEvent:event];
 }
 
 
@@ -110,21 +98,6 @@ typedef struct {
     self.value = 0.0;
     self.index = 0;
     self.valueWidth = self.maxValue - self.minValue;
-}
-
-- (void)setValue:(CGFloat)value {
-    if (_value != value) {
-        _value = value;
-        [self setNeedsDisplay];
-    }
-}
-
-- (void)setIndex:(NSInteger)index {
-    if (_index != index) {
-        _index = index;
-        self.value = index;
-        [self sendActionsForControlEvents:UIControlEventValueChanged];
-    }
 }
 
 - (void)draw {
@@ -169,15 +142,50 @@ typedef struct {
     CGContextFillPath(ctx);
 }
 
-//判断点击的位置是否是mark内
-- (BOOL)touchInCircleWithPoint:(CGPoint)touchPoint circleCenter:(CGPoint)circleCenter {
-    ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(circleCenter, touchPoint);
-    return polarCoordinate.radius < self.thumbRadius;
-}
-
 - (BOOL)handleBeginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     CGPoint touchPoint = [touch locationInView:self];
     return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+}
+
+- (BOOL)handleContinueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    CGPoint touchPoint = [touch locationInView:self];
+    ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
+    double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
+    double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
+    NSLog(@"newValue = %f",newValue);
+    
+    // 过滤不合理的新值
+    BOOL isTure = newValue < (self.minValue - 1) || newValue > self.maxValue;
+    if (isTure) return NO;
+    
+    self.value = newValue;
+    return YES;
+}
+
+- (void)handleEndTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    self.index = roundf(self.value);
+    self.value = self.index;
+}
+
+- (void)setValue:(CGFloat)value {
+    if (_value != value) {
+        _value = value;
+        [self setNeedsDisplay];
+    }
+}
+
+- (void)setIndex:(NSInteger)index {
+    if (_index != index) {
+        _index = index;
+        self.value = index;
+        [self sendActionsForControlEvents:UIControlEventValueChanged];
+    }
+}
+
+// 判断点击的位置是否是mark内
+- (BOOL)touchInCircleWithPoint:(CGPoint)touchPoint circleCenter:(CGPoint)circleCenter {
+    ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(circleCenter, touchPoint);
+    return polarCoordinate.radius < self.thumbRadius;
 }
 
 
@@ -231,7 +239,6 @@ ZXSPolarCoordinate pointToPolarCoordinate(CGPoint center, CGPoint point) {
     double y = point.y - center.y;
     polarCoordinate.radius = sqrt(pow(x, 2.0) + pow(y, 2.0));
     polarCoordinate.angle = acos(x / (sqrt(pow(x, 2.0) + pow(y, 2.0))));
-    
     if (y < 0) {
         polarCoordinate.angle = 2 * M_PI - polarCoordinate.angle;
     }
