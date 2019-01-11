@@ -101,6 +101,8 @@ typedef struct {
     self.value = 0.0;
     self.index = 0;
     self.valueWidth = self.maxValue - self.minValue;
+    
+    self.interaction = NO;
 }
 
 - (void)draw {
@@ -146,11 +148,14 @@ typedef struct {
 }
 
 - (BOOL)handleBeginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    NSLog(@"handleBeginTrackingWithTouch");
     CGPoint touchPoint = [touch locationInView:self];
-    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+    BOOL isTure = [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+    return isTure;
 }
 
 - (BOOL)handleContinueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    NSLog(@"handleContinueTrackingWithTouch");
     CGPoint touchPoint = [touch locationInView:self];
     ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
     double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
@@ -161,13 +166,14 @@ typedef struct {
 }
 
 - (void)handleEndTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    NSLog(@"handleEndTrackingWithTouch");
     self.index = roundf(self.value);
     self.value = self.index;
 }
 
 - (void)setValue:(CGFloat)value {
     if (_value != value) {
-        _value = MIN(MAX(value, 0.0), 8.999999);
+        _value = MIN(MAX(value, 0.0), 9.0);
         [self setNeedsDisplay];
     }
 }
