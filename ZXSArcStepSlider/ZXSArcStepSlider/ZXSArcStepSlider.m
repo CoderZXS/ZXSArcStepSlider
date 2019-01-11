@@ -60,8 +60,7 @@ typedef struct {
 
 //开始
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    CGPoint touchPoint = [touch locationInView:self];
-    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+    return [self handleBeginTrackingWithTouch:touch withEvent:event];
 }
 
 //持续
@@ -176,6 +175,11 @@ typedef struct {
     return polarCoordinate.radius < self.thumbRadius;
 }
 
+- (BOOL)handleBeginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    CGPoint touchPoint = [touch locationInView:self];
+    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+}
+
 
 #pragma mark - 工具函数
 
@@ -199,7 +203,6 @@ CGFloat segmentAngle(CGPoint startPoint, CGPoint endPoint) {
 CGFloat segmentLength(CGPoint startPoint, CGPoint endPoint) {
     return pointToPolarCoordinate(startPoint, endPoint).radius;
 }
-
 
 /**
  极坐标转化成点
