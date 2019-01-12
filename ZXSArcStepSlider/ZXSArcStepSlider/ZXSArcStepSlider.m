@@ -38,6 +38,7 @@ typedef struct {
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
 @property (nonatomic, assign) CGFloat value;// 当前值
+@property (nonatomic, assign) CGFloat lastValue;// 上一个值
 @property (nonatomic, assign) CGFloat valueWidth;// 取值宽度
 
 @end
@@ -49,73 +50,44 @@ typedef struct {
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
-        [self setupInit];
+        self.backgroundColor = [UIColor clearColor];
+        
+        self.borderWidth = 10;
+        CGFloat halfSliderWidth = frame.size.width * 0.5;
+        self.circleRadius = halfSliderWidth - self.borderWidth * 0.5 - 10;
+        self.circleCenter = CGPointMake(halfSliderWidth, halfSliderWidth);
+        
+        self.unfillColor = [UIColor whiteColor];
+        self.fillColor = [UIColor orangeColor];
+        self.startAngle = M_PI_4 * 3;
+        self.endAngle = M_PI_4 + M_PI * 2;
+        self.angleWidth = self.endAngle - self.startAngle;
+        
+        self.stepRadius = 10;
+        
+        self.thumbRadius = 15;
+        self.thumbColor = self.unfillColor;
+        
+        self.minValue = 0.0;
+        self.maxValue = 9.0;
+        self.value = 0.0;
+        self.lastValue = self.value;
+        self.index = 0;
+        self.valueWidth = self.maxValue - self.minValue;
     }
     return self;
 }
 
 - (void)drawRect:(CGRect)rect {
-    [self draw];
-}
-
-// 点击开始
-- (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    [super beginTrackingWithTouch:touch withEvent:event];
-    return [self handleBeginTrackingWithTouch:touch withEvent:event];
-}
-
-// 拖动过程中
-- (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    [super continueTrackingWithTouch:touch withEvent:event];
-    return [self handleContinueTrackingWithTouch:touch withEvent:event];
-}
-
-// 拖动结束
-- (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    [super endTrackingWithTouch:touch withEvent:event];
-    return [self handleEndTrackingWithTouch:touch withEvent:event];
-}
-
-
-#pragma mark - 自定义
-
-- (void)setupInit {
-    self.backgroundColor = [UIColor clearColor];
-    
-    self.circleRadius = 135;
-    
-    self.borderWidth = 10;
-    self.unfillColor = [UIColor whiteColor];
-    self.fillColor = [UIColor orangeColor];
-    self.startAngle = M_PI_4 * 3;
-    self.endAngle = M_PI_4 + M_PI * 2;
-    self.angleWidth = self.endAngle - self.startAngle;
-    
-    self.stepRadius = 10;
-    
-    self.thumbRadius = 15;
-    self.thumbColor = self.unfillColor;
-
-    self.minValue = 0.0;
-    self.maxValue = 9.0;
-    self.value = 0.0;
-    self.index = 0;
-    self.valueWidth = self.maxValue - self.minValue;
-    
-    self.interaction = NO;
-}
-
-- (void)draw {
-    self.circleCenter = CGPointMake(self.bounds.size.width * 0.5, self.bounds.size.height * 0.5);
     // 值偏移量
     CGFloat currentAngle = ((self.value - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
     self.thumbCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, currentAngle);
     /*
-         1.获取图形上下文
-         2.绘图
-         2.1画图
-         2.2设置参数(颜色、线宽、线段样式等)
-         3.渲染
+     1.获取图形上下文
+     2.绘图
+     2.1画图
+     2.2设置参数(颜色、线宽、线段样式等)
+     3.渲染
      */
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
@@ -147,33 +119,56 @@ typedef struct {
     CGContextFillPath(ctx);
 }
 
-- (BOOL)handleBeginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    NSLog(@"handleBeginTrackingWithTouch");
+// 点击开始
+- (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super beginTrackingWithTouch:touch withEvent:event];
+    NSLog(@"beginTrackingWithTouch");
     CGPoint touchPoint = [touch locationInView:self];
-    return [self touchInCircleWithPoint:touchPoint circleCenter:self.thumbCenter];
+    // 当触点在滑块或者圆弧上可以开始跟踪
+    return [self isTrackingWithPoint:touchPoint];
 }
 
-- (BOOL)handleContinueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    NSLog(@"handleContinueTrackingWithTouch");
+// 拖动过程中
+- (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super continueTrackingWithTouch:touch withEvent:event];
+    NSLog(@"continueTrackingWithTouch");
     CGPoint touchPoint = [touch locationInView:self];
-    ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
-    double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
-    double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
-    NSLog(@"newValue = %f",newValue);
-    self.value = newValue;
-    return YES;
+    // 当触点在滑块或者圆弧上可以继续跟踪
+    if ([self isTrackingWithPoint:touchPoint]) {
+        ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
+        double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
+        double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
+        NSLog(@"newValue = %f",newValue);
+        self.value = newValue;
+        return YES;
+        
+    } else {
+        [self endTrackingWithTouch:touch withEvent:event];
+        return NO;
+    }
 }
 
-- (void)handleEndTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
-    NSLog(@"handleEndTrackingWithTouch");
+// 拖动结束
+- (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
+    [super endTrackingWithTouch:touch withEvent:event];
+    NSLog(@"endTrackingWithTouch");
     self.index = roundf(self.value);
     self.value = self.index;
 }
 
+
+#pragma mark - 自定义
+
 - (void)setValue:(CGFloat)value {
     if (_value != value) {
-        _value = MIN(MAX(value, 0.0), 9.0);
-        [self setNeedsDisplay];
+        CGFloat tempValue = MIN(MAX(value, 0.0), 9.0);
+        // 过滤最小值右划设值为9.0
+        if (_lastValue < 1 && tempValue == 9.0) {
+        } else {
+            _value = tempValue;
+            _lastValue = tempValue;
+            [self setNeedsDisplay];
+        }
     }
 }
 
@@ -183,6 +178,30 @@ typedef struct {
         self.value = index;
         [self sendActionsForControlEvents:UIControlEventValueChanged];
     }
+}
+
+// 判断点击的位置是否在圆弧上
+- (BOOL)isTrackingWithPoint:(CGPoint)touchPoint {
+    // 排除点在圆外面点
+    NSLog(@"touchPoint = %@", NSStringFromCGPoint(touchPoint));
+    CGFloat maxX = CGRectGetWidth(self.frame);
+    CGFloat maxY = CGRectGetHeight(self.frame) * 0.5 + sqrt(pow(self.circleRadius, 2) * 0.5) + 10;
+    NSLog(@"maxX = %f\nmaxY = %f",maxX,maxY);
+    BOOL isTure = touchPoint.x < 0 || touchPoint.x > maxX || touchPoint.y < 0 || touchPoint.y > maxY;
+    if (isTure) {
+        NSLog(@"排除点在圆外面点");
+        return NO;
+    }
+    
+    // 排除与圆心半径*0.8倍以内的点
+    CGFloat distance = sqrt(pow((touchPoint.x - self.circleCenter.x), 2) + pow((touchPoint.y - self.circleCenter.y), 2));
+    isTure = distance < self.circleRadius * 0.6;
+    if (isTure) {
+        NSLog(@"排除与圆心半径*0.8倍以内的点");
+        return NO;
+    }
+    
+    return YES;
 }
 
 // 判断点击的位置是否是mark内

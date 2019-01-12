@@ -21,14 +21,14 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [UIColor blackColor];
-    self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
+    self.label = [[UILabel alloc] initWithFrame:CGRectMake(80, 150, 300, 300)];
     self.label.textAlignment = NSTextAlignmentCenter;
     self.label.font = [UIFont systemFontOfSize:150];
     self.label.textColor = [UIColor redColor];
     self.label.text = @"0";
     [self.view addSubview:self.label];
     
-    ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(0, 100, 375, 375)];
+    ZXSArcStepSlider *slder = [[ZXSArcStepSlider alloc] initWithFrame:CGRectMake(80, 150, 300, 300)];
     [self.view addSubview:slder];
     [slder addTarget:self action:@selector(valueChange:) forControlEvents:UIControlEventValueChanged];
 }

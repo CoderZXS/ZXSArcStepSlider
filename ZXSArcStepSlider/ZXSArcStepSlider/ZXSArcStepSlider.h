@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ZXSArcStepSlider : UIControl
 
 @property (nonatomic, assign) NSInteger index;// 当前下标
-@property (nonatomic, assign) BOOL interaction;// 点击在限定的区域为YES，否则为NO.
 
 @end
 
