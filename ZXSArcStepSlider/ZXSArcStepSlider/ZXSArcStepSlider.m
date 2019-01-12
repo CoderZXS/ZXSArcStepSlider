@@ -21,8 +21,8 @@ typedef struct {
 
 // 圆弧
 @property (nonatomic, assign) CGFloat borderWidth;// 线宽度
-@property (nonatomic, strong) UIColor *tintColor;// 背景颜色
-@property (nonatomic, strong) UIColor *onTintColor;// 填充颜色
+@property (nonatomic, strong) UIColor *unfillColor;// 背景颜色
+@property (nonatomic, strong) UIColor *fillColor;// 填充颜色
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
 @property (nonatomic, assign) CGFloat endAngle;// 结束弧度
 @property (nonatomic, assign) CGFloat angleWidth;// 弧度宽度
@@ -85,8 +85,8 @@ typedef struct {
     self.circleRadius = 135;
     
     self.borderWidth = 10;
-    self.tintColor = [UIColor whiteColor];
-    self.onTintColor = [UIColor orangeColor];
+    self.unfillColor = [UIColor whiteColor];
+    self.fillColor = [UIColor orangeColor];
     self.startAngle = M_PI_4 * 3;
     self.endAngle = M_PI_4 + M_PI * 2;
     self.angleWidth = self.endAngle - self.startAngle;
@@ -94,7 +94,7 @@ typedef struct {
     self.stepRadius = 10;
     
     self.thumbRadius = 15;
-    self.thumbColor = self.tintColor;
+    self.thumbColor = self.unfillColor;
 
     self.minValue = 0.0;
     self.maxValue = 9.0;
@@ -122,13 +122,13 @@ typedef struct {
     // 1.背景圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, self.endAngle, 0);
     CGContextSetLineWidth(ctx, self.borderWidth);
-    [self.tintColor setStroke];
+    [self.unfillColor setStroke];
     CGContextSetLineCap(ctx, kCGLineCapRound);
     CGContextStrokePath(ctx);
     
     // 2.填充圆弧
     CGContextAddArc(ctx, self.circleCenter.x, self.circleCenter.y, self.circleRadius, self.startAngle, currentAngle, 0);
-    [self.onTintColor setStroke];
+    [self.fillColor setStroke];
     CGContextStrokePath(ctx);
     
     // 3.节点
@@ -136,7 +136,7 @@ typedef struct {
         CGFloat stepAngle = ((i - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
         CGPoint stepCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, stepAngle);
         CGContextAddArc(ctx, stepCenter.x, stepCenter.y, 10, 0.0, M_PI * 2, 0);
-        UIColor *stepColor = stepAngle < currentAngle ? self.onTintColor : self.tintColor;
+        UIColor *stepColor = stepAngle < currentAngle ? self.fillColor : self.unfillColor;
         [stepColor setFill];
         CGContextFillPath(ctx);
     }
