@@ -16,27 +16,12 @@ typedef struct {
 
 @interface ZXSArcStepSlider ()
 
-@property (nonatomic, assign) CGFloat circleRadius;// 圆半径
-@property (nonatomic, assign) CGPoint circleCenter;// 圆心
-
-// 圆弧
-@property (nonatomic, assign) CGFloat borderWidth;// 线宽度
-@property (nonatomic, strong) UIColor *unfillColor;// 背景颜色
-@property (nonatomic, strong) UIColor *fillColor;// 填充颜色
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
 @property (nonatomic, assign) CGFloat endAngle;// 结束弧度
 @property (nonatomic, assign) CGFloat angleWidth;// 弧度宽度
-
-// 节点
-@property (nonatomic, assign) CGFloat stepRadius;// 节点半径
-
-// 滑块
-@property (nonatomic, assign) CGFloat thumbRadius;// 滑块半径
-@property (nonatomic, strong) UIColor *thumbColor;// 滑块颜色
+@property (nonatomic, assign) CGFloat circleRadius;// 圆半径
+@property (nonatomic, assign) CGPoint circleCenter;// 圆心
 @property (nonatomic, assign) CGPoint thumbCenter;// 滑块中心点
-
-@property (nonatomic, assign) CGFloat minValue;// 最小值
-@property (nonatomic, assign) CGFloat maxValue;// 最大值
 @property (nonatomic, assign) CGFloat value;// 当前值
 @property (nonatomic, assign) CGFloat lastValue;// 上一个值
 @property (nonatomic, assign) CGFloat valueWidth;// 取值宽度
@@ -52,29 +37,27 @@ typedef struct {
     if (self = [super initWithFrame:frame]) {
         self.backgroundColor = [UIColor clearColor];
         
-        self.borderWidth = 10;
-        CGFloat halfSliderWidth = frame.size.width * 0.5;
-        self.circleRadius = halfSliderWidth - self.borderWidth * 0.5 - 10;
-        self.circleCenter = CGPointMake(halfSliderWidth, halfSliderWidth);
-        
+        self.borderWidth = frame.size.width * 0.025;
         self.unfillColor = [UIColor whiteColor];
         self.fillColor = [UIColor orangeColor];
-        self.startAngle = M_PI_4 * 3;
-        self.endAngle = M_PI_4 + M_PI * 2;
-        self.angleWidth = self.endAngle - self.startAngle;
-        
-        self.stepRadius = 10;
-        
-        self.thumbRadius = 15;
+        self.stepRadius = self.borderWidth;
+        self.stepCount = 10;
+        self.thumbRadius = self.stepRadius * 2.0;
         self.thumbColor = self.unfillColor;
-        
         self.minValue = 0.0;
         self.maxValue = 9.0;
+        self.valueWidth = self.maxValue - self.minValue;
         self.value = 0.0;
         self.lastValue = self.value;
         self.index = 0;
-        self.valueWidth = self.maxValue - self.minValue;
+        self.startAngle = M_PI_4 * 3;
+        self.endAngle = M_PI_4 + M_PI * 2;
+        self.angleWidth = self.endAngle - self.startAngle;
+        CGFloat halfSliderWidth = frame.size.width * 0.5;
+        self.circleRadius = halfSliderWidth - self.thumbRadius - 10;
+        self.circleCenter = CGPointMake(halfSliderWidth, halfSliderWidth);
     }
+    
     return self;
 }
 
@@ -104,10 +87,11 @@ typedef struct {
     CGContextStrokePath(ctx);
     
     // 3.节点
-    for (NSInteger i = 0; i < 10; i++) {
+    NSInteger stepCount = self.stepCount;
+    for (NSInteger i = 0; i < stepCount; i++) {
         CGFloat stepAngle = ((i - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
         CGPoint stepCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, stepAngle);
-        CGContextAddArc(ctx, stepCenter.x, stepCenter.y, 10, 0.0, M_PI * 2, 0);
+        CGContextAddArc(ctx, stepCenter.x, stepCenter.y, self.stepRadius, 0.0, M_PI * 2, 0);
         UIColor *stepColor = stepAngle < currentAngle ? self.fillColor : self.unfillColor;
         [stepColor setFill];
         CGContextFillPath(ctx);
@@ -123,8 +107,8 @@ typedef struct {
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     [super beginTrackingWithTouch:touch withEvent:event];
     NSLog(@"beginTrackingWithTouch");
-    CGPoint touchPoint = [touch locationInView:self];
     // 当触点在滑块或者圆弧上可以开始跟踪
+    CGPoint touchPoint = [touch locationInView:self];
     return [self isTrackingWithPoint:touchPoint];
 }
 
@@ -132,9 +116,10 @@ typedef struct {
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     [super continueTrackingWithTouch:touch withEvent:event];
     NSLog(@"continueTrackingWithTouch");
-    CGPoint touchPoint = [touch locationInView:self];
     // 当触点在滑块或者圆弧上可以继续跟踪
+    CGPoint touchPoint = [touch locationInView:self];
     if ([self isTrackingWithPoint:touchPoint]) {
+        // 圆弧上
         ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
         double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
         double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
@@ -143,6 +128,7 @@ typedef struct {
         return YES;
         
     } else {
+        // 圆弧外
         [self endTrackingWithTouch:touch withEvent:event];
         return NO;
     }
@@ -166,7 +152,7 @@ typedef struct {
         if (_lastValue < 1 && tempValue == 9.0) {
         } else {
             _value = tempValue;
-            _lastValue = tempValue;
+            _lastValue = _value;
             [self setNeedsDisplay];
         }
     }
@@ -185,19 +171,19 @@ typedef struct {
     // 排除点在圆外面点
     NSLog(@"touchPoint = %@", NSStringFromCGPoint(touchPoint));
     CGFloat maxX = CGRectGetWidth(self.frame);
-    CGFloat maxY = CGRectGetHeight(self.frame) * 0.5 + sqrt(pow(self.circleRadius, 2) * 0.5) + 10;
-    NSLog(@"maxX = %f\nmaxY = %f",maxX,maxY);
+    CGFloat maxY = CGRectGetHeight(self.frame) * 0.5 + sqrt(pow(self.circleRadius, 2) * 0.5) + 10.0;
+    NSLog(@"maxX = %f, maxY = %f", maxX, maxY);
     BOOL isTure = touchPoint.x < 0 || touchPoint.x > maxX || touchPoint.y < 0 || touchPoint.y > maxY;
     if (isTure) {
-        NSLog(@"排除点在圆外面点");
+        NSLog(@"点在圆外面");
         return NO;
     }
     
-    // 排除与圆心半径*0.8倍以内的点
+    // 排除与圆心半径*0.6倍以内的点
     CGFloat distance = sqrt(pow((touchPoint.x - self.circleCenter.x), 2) + pow((touchPoint.y - self.circleCenter.y), 2));
     isTure = distance < self.circleRadius * 0.6;
     if (isTure) {
-        NSLog(@"排除与圆心半径*0.8倍以内的点");
+        NSLog(@"点在圆心半径*0.6倍以内");
         return NO;
     }
     
@@ -219,19 +205,6 @@ CGFloat toDegree(CGFloat radian) {
 
 CGFloat toRadian(CGFloat degree) {
     return degree * M_PI / 180;
-}
-
-CGFloat segmentAngle(CGPoint startPoint, CGPoint endPoint) {
-    CGPoint v = CGPointMake(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-    float vmag = sqrt(powf(v.x, 2.0) + powf(v.y, 2.0));
-    v.x /= vmag;
-    v.y /= vmag;
-    double radian = atan2(v.y, v.x);
-    return radian;
-}
-
-CGFloat segmentLength(CGPoint startPoint, CGPoint endPoint) {
-    return pointToPolarCoordinate(startPoint, endPoint).radius;
 }
 
 /**
@@ -266,6 +239,19 @@ ZXSPolarCoordinate pointToPolarCoordinate(CGPoint center, CGPoint point) {
     }
     
     return polarCoordinate;
+}
+
+CGFloat segmentAngle(CGPoint startPoint, CGPoint endPoint) {
+    CGPoint v = CGPointMake(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+    float vmag = sqrt(powf(v.x, 2.0) + powf(v.y, 2.0));
+    v.x /= vmag;
+    v.y /= vmag;
+    double radian = atan2(v.y, v.x);
+    return radian;
+}
+
+CGFloat segmentLength(CGPoint startPoint, CGPoint endPoint) {
+    return pointToPolarCoordinate(startPoint, endPoint).radius;
 }
 
 @end
