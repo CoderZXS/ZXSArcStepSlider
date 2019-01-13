@@ -18,13 +18,11 @@ typedef struct {
 
 @property (nonatomic, assign) CGFloat startAngle;// 开始弧度
 @property (nonatomic, assign) CGFloat endAngle;// 结束弧度
-@property (nonatomic, assign) CGFloat angleWidth;// 弧度宽度
 @property (nonatomic, assign) CGFloat circleRadius;// 圆半径
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
 @property (nonatomic, assign) CGPoint thumbCenter;// 滑块中心点
 @property (nonatomic, assign) CGFloat value;// 当前值
 @property (nonatomic, assign) CGFloat lastValue;// 上一个值
-@property (nonatomic, assign) CGFloat valueWidth;// 取值宽度
 
 @end
 
@@ -46,13 +44,11 @@ typedef struct {
         self.thumbColor = self.unfillColor;
         self.minValue = 0.0;
         self.maxValue = 9.0;
-        self.valueWidth = self.maxValue - self.minValue;
         self.value = 0.0;
         self.lastValue = self.value;
         self.index = 0;
         self.startAngle = M_PI_4 * 3;
         self.endAngle = M_PI_4 + M_PI * 2;
-        self.angleWidth = self.endAngle - self.startAngle;
         CGFloat halfSliderWidth = frame.size.width * 0.5;
         self.circleRadius = halfSliderWidth - self.thumbRadius - 10;
         self.circleCenter = CGPointMake(halfSliderWidth, halfSliderWidth);
@@ -63,8 +59,10 @@ typedef struct {
 
 - (void)drawRect:(CGRect)rect {
     // 值偏移量
-    CGFloat currentAngle = ((self.value - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
-    self.thumbCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, currentAngle);
+    CGFloat valueWidth = self.maxValue - self.minValue;
+    CGFloat angleWidth = self.endAngle - self.startAngle;
+    CGFloat currentAngle = ((self.value - self.minValue) / valueWidth) * angleWidth + self.startAngle;
+    CGPoint thumbCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, currentAngle);
     /*
      1.获取图形上下文
      2.绘图
@@ -89,7 +87,7 @@ typedef struct {
     // 3.节点
     NSInteger stepCount = self.stepCount;
     for (NSInteger i = 0; i < stepCount; i++) {
-        CGFloat stepAngle = ((i - self.minValue) / self.valueWidth) * self.angleWidth + self.startAngle;
+        CGFloat stepAngle = ((i - self.minValue) / valueWidth) * angleWidth + self.startAngle;
         CGPoint stepCenter = polarCoordinateToPoint(self.circleCenter, self.circleRadius, stepAngle);
         CGContextAddArc(ctx, stepCenter.x, stepCenter.y, self.stepRadius, 0.0, M_PI * 2, 0);
         UIColor *stepColor = stepAngle < currentAngle ? self.fillColor : self.unfillColor;
@@ -98,7 +96,7 @@ typedef struct {
     }
     
     // 4.滑轮
-    CGContextAddArc(ctx, self.thumbCenter.x, self.thumbCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
+    CGContextAddArc(ctx, thumbCenter.x, thumbCenter.y, self.thumbRadius, 0.0, M_PI * 2, 0);
     [self.thumbColor setFill];
     CGContextFillPath(ctx);
 }
@@ -122,7 +120,7 @@ typedef struct {
         // 圆弧上
         ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
         double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
-        double newValue = (angleOffset / self.angleWidth) * self.valueWidth + self.minValue;
+        double newValue = (angleOffset / (self.endAngle - self.startAngle)) * (self.maxValue - self.minValue) + self.minValue;
         NSLog(@"newValue = %f",newValue);
         self.value = newValue;
         return YES;
@@ -144,6 +142,27 @@ typedef struct {
 
 
 #pragma mark - 自定义
+
+- (void)setBorderWidth:(CGFloat)borderWidth {
+    if (_borderWidth != borderWidth) {
+        _borderWidth = borderWidth;
+        self.stepRadius = _borderWidth;
+    }
+}
+
+- (void)setUnfillColor:(UIColor *)unfillColor {
+    if (_unfillColor != unfillColor) {
+        _unfillColor = unfillColor;
+        self.thumbColor = _unfillColor;
+    }
+}
+
+- (void)setStepRadius:(CGFloat)stepRadius {
+    if (_stepRadius != stepRadius) {
+        _stepRadius = stepRadius;
+        self.thumbRadius = _stepRadius * 2.0;
+    }
+}
 
 - (void)setValue:(CGFloat)value {
     if (_value != value) {

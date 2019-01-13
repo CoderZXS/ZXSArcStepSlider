@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZXSArcStepSlider : UIControl
 
-
 @property (nonatomic, assign) CGFloat borderWidth;// 线宽度
 @property (nonatomic, strong) UIColor *unfillColor;// 背景颜色
 @property (nonatomic, strong) UIColor *fillColor;// 填充颜色
