@@ -121,7 +121,7 @@ typedef struct {
         ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
         double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
         double newValue = (angleOffset / (self.endAngle - self.startAngle)) * (self.maxValue - self.minValue) + self.minValue;
-        NSLog(@"newValue = %f",newValue);
+        //NSLog(@"newValue = %f",newValue);
         self.value = newValue;
         return YES;
         
@@ -188,10 +188,10 @@ typedef struct {
 // 判断点击的位置是否在圆弧上
 - (BOOL)isTrackingWithPoint:(CGPoint)touchPoint {
     // 排除点在圆外面点
-    NSLog(@"touchPoint = %@", NSStringFromCGPoint(touchPoint));
+    //NSLog(@"touchPoint = %@", NSStringFromCGPoint(touchPoint));
     CGFloat maxX = CGRectGetWidth(self.frame);
     CGFloat maxY = CGRectGetHeight(self.frame) * 0.5 + sqrt(pow(self.circleRadius, 2) * 0.5) + 10.0;
-    NSLog(@"maxX = %f, maxY = %f", maxX, maxY);
+    //NSLog(@"maxX = %f, maxY = %f", maxX, maxY);
     BOOL isTure = touchPoint.x < 0 || touchPoint.x > maxX || touchPoint.y < 0 || touchPoint.y > maxY;
     if (isTure) {
         NSLog(@"点在圆外面");
