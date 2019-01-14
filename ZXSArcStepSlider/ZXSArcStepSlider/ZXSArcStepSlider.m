@@ -140,6 +140,11 @@ typedef struct {
     self.value = self.index;
 }
 
+- (void)cancelTrackingWithEvent:(UIEvent *)event {
+    [super cancelTrackingWithEvent:event];
+    NSLog(@"cancelTrackingWithEvent");
+}
+
 
 #pragma mark - 自定义
 
