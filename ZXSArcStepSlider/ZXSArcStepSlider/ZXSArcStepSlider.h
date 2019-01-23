@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) CGFloat minValue;// 最小值
 @property (nonatomic, assign) CGFloat maxValue;// 最大值
 @property (nonatomic, assign) NSInteger index;// 当前下标
+@property (nonatomic, copy) void(^enableExternalGestureRecognizersCompletion)(BOOL);
 
 @end
 

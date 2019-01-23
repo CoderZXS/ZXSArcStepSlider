@@ -22,7 +22,7 @@ typedef struct {
 @property (nonatomic, assign) CGPoint circleCenter;// 圆心
 @property (nonatomic, assign) CGPoint thumbCenter;// 滑块中心点
 @property (nonatomic, assign) CGFloat value;// 当前值
-@property (nonatomic, assign) CGFloat lastValue;// 上一个值
+@property (nonatomic, assign) BOOL enableExternalGestureRecognizers;// 是否启用外界手势（外界手势会影响滑块滑动）
 
 @end
 
@@ -40,18 +40,18 @@ typedef struct {
         self.fillColor = [UIColor orangeColor];
         self.stepRadius = self.borderWidth;
         self.stepCount = 10;
-        self.thumbRadius = self.stepRadius * 2.0;
-        self.thumbColor = self.unfillColor;
+        self.thumbRadius = self.stepRadius * 1.5;
+        self.thumbColor = self.fillColor;
         self.minValue = 0.0;
         self.maxValue = 9.0;
         self.value = 0.0;
-        self.lastValue = self.value;
         self.index = 0;
         self.startAngle = M_PI_4 * 3;
         self.endAngle = M_PI_4 + M_PI * 2;
         CGFloat halfSliderWidth = frame.size.width * 0.5;
         self.circleRadius = halfSliderWidth - self.thumbRadius - 10;
         self.circleCenter = CGPointMake(halfSliderWidth, halfSliderWidth);
+        _enableExternalGestureRecognizers = YES;
     }
     
     return self;
@@ -101,7 +101,10 @@ typedef struct {
     CGContextFillPath(ctx);
 }
 
-// 点击开始
+
+#pragma mark - UIControl事件
+
+// 点击开始追踪
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     [super beginTrackingWithTouch:touch withEvent:event];
     NSLog(@"beginTrackingWithTouch");
@@ -110,39 +113,55 @@ typedef struct {
     return [self isTrackingWithPoint:touchPoint];
 }
 
-// 拖动过程中
+// 追踪过程中
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     [super continueTrackingWithTouch:touch withEvent:event];
     NSLog(@"continueTrackingWithTouch");
     // 当触点在滑块或者圆弧上可以继续跟踪
     CGPoint touchPoint = [touch locationInView:self];
-    if ([self isTrackingWithPoint:touchPoint]) {
+    BOOL isTure = [self isTrackingWithPoint:touchPoint];
+    if (isTure) {
         // 圆弧上
         ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(self.circleCenter, touchPoint);
         double angleOffset = (polarCoordinate.angle < self.startAngle) ? (polarCoordinate.angle + 2 * M_PI - self.startAngle) : (polarCoordinate.angle - self.startAngle);
         double newValue = (angleOffset / (self.endAngle - self.startAngle)) * (self.maxValue - self.minValue) + self.minValue;
-        //NSLog(@"newValue = %f",newValue);
-        self.value = newValue;
-        return YES;
+        NSLog(@"newValue = %f",newValue);
+        
+        // 过滤追踪到0节点附近时出现设置最大值bug
+        newValue = MIN(MAX(newValue, self.minValue), self.maxValue);
+        isTure = newValue == self.maxValue && touchPoint.x < self.frame.size.width * 0.5;
+        if (isTure) {
+            NSLog(@"追踪到0节点附近时出现设置最大值bug");
+            self.value = self.minValue;
+            [self endTrackingWithTouch:touch withEvent:event];
+            return NO;
+            
+        } else {
+            NSLog(@"圆弧上");
+            self.value = newValue;
+            return YES;
+        }
         
     } else {
         // 圆弧外
+        NSLog(@"圆弧外");
         [self endTrackingWithTouch:touch withEvent:event];
         return NO;
     }
 }
 
-// 拖动结束
+// 追踪结束
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     [super endTrackingWithTouch:touch withEvent:event];
     NSLog(@"endTrackingWithTouch");
-    self.index = roundf(self.value);
-    self.value = self.index;
+    [self endTouch];
 }
 
+// 取消追踪
 - (void)cancelTrackingWithEvent:(UIEvent *)event {
     [super cancelTrackingWithEvent:event];
     NSLog(@"cancelTrackingWithEvent");
+    [self endTouch];
 }
 
 
@@ -158,7 +177,21 @@ typedef struct {
 - (void)setUnfillColor:(UIColor *)unfillColor {
     if (_unfillColor != unfillColor) {
         _unfillColor = unfillColor;
-        self.thumbColor = _unfillColor;
+        [self setNeedsDisplay];
+    }
+}
+
+- (void)setFillColor:(UIColor *)fillColor {
+    if (_fillColor != fillColor) {
+        _fillColor = fillColor;
+        [self setNeedsDisplay];
+    }
+}
+
+- (void)setThumbColor:(UIColor *)thumbColor {
+    if (_thumbColor != thumbColor) {
+        _thumbColor = thumbColor;
+        [self setNeedsDisplay];
     }
 }
 
@@ -170,15 +203,10 @@ typedef struct {
 }
 
 - (void)setValue:(CGFloat)value {
+    value = MIN(MAX(value, self.minValue), self.maxValue);
     if (_value != value) {
-        CGFloat tempValue = MIN(MAX(value, 0.0), 9.0);
-        // 过滤最小值右划设值为9.0
-        if (_lastValue < 1 && tempValue == 9.0) {
-        } else {
-            _value = tempValue;
-            _lastValue = _value;
-            [self setNeedsDisplay];
-        }
+        _value = value;
+        [self setNeedsDisplay];
     }
 }
 
@@ -190,13 +218,21 @@ typedef struct {
     }
 }
 
+- (void)setEnableExternalGestureRecognizers:(BOOL)enableExternalGestureRecognizers {
+    if (_enableExternalGestureRecognizers != enableExternalGestureRecognizers) {
+        _enableExternalGestureRecognizers = enableExternalGestureRecognizers;
+        // 通知外界手势是否可用
+        if (self.enableExternalGestureRecognizersCompletion) {
+            self.enableExternalGestureRecognizersCompletion(enableExternalGestureRecognizers);
+        }
+    }
+}
+
 // 判断点击的位置是否在圆弧上
 - (BOOL)isTrackingWithPoint:(CGPoint)touchPoint {
     // 排除点在圆外面点
-    //NSLog(@"touchPoint = %@", NSStringFromCGPoint(touchPoint));
     CGFloat maxX = CGRectGetWidth(self.frame);
     CGFloat maxY = CGRectGetHeight(self.frame) * 0.5 + sqrt(pow(self.circleRadius, 2) * 0.5) + 10.0;
-    //NSLog(@"maxX = %f, maxY = %f", maxX, maxY);
     BOOL isTure = touchPoint.x < 0 || touchPoint.x > maxX || touchPoint.y < 0 || touchPoint.y > maxY;
     if (isTure) {
         NSLog(@"点在圆外面");
@@ -211,6 +247,8 @@ typedef struct {
         return NO;
     }
     
+    // 禁用外界手势
+    self.enableExternalGestureRecognizers = NO;
     return YES;
 }
 
@@ -218,6 +256,14 @@ typedef struct {
 - (BOOL)touchInCircleWithPoint:(CGPoint)touchPoint circleCenter:(CGPoint)circleCenter {
     ZXSPolarCoordinate polarCoordinate = pointToPolarCoordinate(circleCenter, touchPoint);
     return polarCoordinate.radius < self.thumbRadius;
+}
+
+- (void)endTouch {
+    self.index = roundf(self.value);
+    self.value = self.index;
+    
+    // 启用外界手势
+    self.enableExternalGestureRecognizers = YES;
 }
 
 
@@ -233,7 +279,7 @@ CGFloat toRadian(CGFloat degree) {
 
 /**
  极坐标转化成点
-
+ 
  @param center 圆心
  @param radius 圆半径
  @param angle 弧度
@@ -247,7 +293,7 @@ CGPoint polarCoordinateToPoint(CGPoint center, CGFloat radius, CGFloat angle) {
 
 /**
  点转化为极坐标
-
+ 
  @param center 圆心
  @param point 点
  @return 极坐标
